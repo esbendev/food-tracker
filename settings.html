@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9d8df1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Tracker">
+  <title>Configuracion</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-home">
+  <main class="app-shell">
+    <section class="header-card">
+      <a class="back-link" href="index.html">&larr; Volver</a>
+      <h1>Configuracion</h1>
+      <p class="subcopy">Pantalla reservada para las opciones de la app.</p>
+    </section>
+
+    <section class="form-card">
+      <p class="section-title">Herramientas</p>
+      <p class="subcopy">Aca vas a poder gestionar los datos guardados en el diario.</p>
+      <section class="settings-stats" aria-labelledby="storageSummaryTitle">
+        <div class="settings-stats-header">
+          <p class="section-title" id="storageSummaryTitle">Resumen guardado</p>
+          <p class="settings-storage-note" id="storageUsageLabel">Calculando...</p>
+        </div>
+        <div class="settings-stats-grid" id="settingsStatsGrid"></div>
+      </section>
+      <section class="settings-tools" aria-labelledby="exportToolsTitle">
+        <div class="settings-stats-header">
+          <p class="section-title" id="exportToolsTitle">Exportar e importar</p>
+          <p class="settings-storage-note">JSON listo para guardar o mover</p>
+        </div>
+        <div class="button-row">
+          <button class="ghost-button" type="button" id="exportAllBtn">Exportar todo</button>
+          <button class="ghost-button" type="button" id="exportCorrelationsBtn">Exportar correlaciones</button>
+          <button class="ghost-button" type="button" id="exportFoodRecordsBtn">Exportar comidas</button>
+          <button class="ghost-button" type="button" id="exportSymptomRecordsBtn">Exportar sintomas</button>
+          <button class="ghost-button" type="button" id="exportFoodSuggestionsBtn">Exportar sugerencias de comidas</button>
+          <button class="ghost-button" type="button" id="exportSymptomSuggestionsBtn">Exportar sugerencias de sintomas</button>
+          <button class="ghost-button" type="button" id="importDataBtn">Importar JSON</button>
+        </div>
+        <input type="file" id="importFileInput" accept="application/json,.json" hidden>
+        <p class="settings-helper">La importacion reemplaza el bloque que venga en el archivo. Si importas un backup completo, reemplaza todas las claves de la app.</p>
+        <p class="settings-feedback" id="settingsFeedback" aria-live="polite"></p>
+      </section>
+      <div class="button-row">
+        <button class="ghost-button danger-button" type="button" id="clearFoodSuggestionsBtn">Borrar sugerencias de comidas</button>
+        <button class="ghost-button danger-button" type="button" id="clearSymptomSuggestionsBtn">Borrar sugerencias de sintomas</button>
+        <button class="ghost-button danger-button" type="button" id="clearStorageBtn">Borrar todo</button>
+      </div>
+      <p class="settings-credit">
+        hecho por <a href="https://www.youtube.com/@esbendev" target="_blank" rel="noreferrer">@esbendev</a>
+      </p>
+      <p class="settings-version" id="settingsVersion">Version: ...</p>
+    </section>
+  </main>
+
+  <script src="js/shared.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

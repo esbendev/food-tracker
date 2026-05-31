@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9d8df1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Tracker">
+  <title>Registro de comidas</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-home">
+  <main class="app-shell">
+    <section class="top-card">
+      <div class="top-card-meta">
+        <p class="eyebrow">Registro diario</p>
+        <a class="settings-link" href="settings.html" aria-label="Abrir configuracion">&#9881;&#65039;</a>
+      </div>
+      <h1>Diario de comidas y sintomas</h1>
+      <p class="selected-date" id="selectedDateLabel"></p>
+      <div class="action-row">
+        <a class="action-link" id="newFoodLink" href="add-item.html">+ Nueva comida</a>
+        <a class="action-link" id="newSymptomLink" href="add-symptom.html">+ Nuevo sintoma</a>
+      </div>
+      <a class="ghost-button insight-link" href="correlations.html">Ver correlaciones</a>
+    </section>
+
+    <section class="calendar-card">
+      <div class="calendar-header">
+        <button class="month-button" type="button" id="prevMonthBtn" aria-label="Mes anterior">&#8249;</button>
+        <h2 id="monthLabel"></h2>
+        <button class="month-button" type="button" id="nextMonthBtn" aria-label="Mes siguiente">&#8250;</button>
+      </div>
+      <div class="weekday-row" aria-hidden="true">
+        <span class="weekday">Dom</span>
+        <span class="weekday">Lun</span>
+        <span class="weekday">Mar</span>
+        <span class="weekday">Mie</span>
+        <span class="weekday">Jue</span>
+        <span class="weekday">Vie</span>
+        <span class="weekday">Sab</span>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="timeline-card">
+      <div class="timeline-header">
+        <h3>Linea del dia</h3>
+        <p id="timelineCount"></p>
+      </div>
+      <div class="timeline-list" id="timelineList"></div>
+    </section>
+  </main>
+
+  <script src="js/shared.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
