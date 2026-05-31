@@ -26,6 +26,8 @@
     navigator.serviceWorker.register("./service-worker.js").catch(function () {
       return null;
     });
+
+    checkAndShowReminderFallback();
   });
 
   function canPromptInstall() {
@@ -61,5 +63,49 @@
         standalone: isStandalone()
       }
     }));
+  }
+
+  function checkAndShowReminderFallback() {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
+
+    if (window.localStorage.getItem("reminder_enabled") !== "true") {
+      return;
+    }
+
+    navigator.serviceWorker.ready.then(function (reg) {
+      if ("periodicSync" in reg) {
+        return;
+      }
+
+      var now = new Date();
+      var today = now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
+      var lastDate = window.localStorage.getItem("reminder_last_date") || "";
+
+      if (lastDate === today) {
+        return;
+      }
+
+      var timeValue = window.localStorage.getItem("reminder_time") || "09:00";
+      var parts = timeValue.split(":");
+      var reminderHour = Number(parts[0] || 9);
+      var reminderMinute = Number(parts[1] || 0);
+
+      if (now.getHours() < reminderHour ||
+          (now.getHours() === reminderHour && now.getMinutes() < reminderMinute)) {
+        return;
+      }
+
+      window.localStorage.setItem("reminder_last_date", today);
+      reg.showNotification("Food Tracker", {
+        body: "No te olvides de registrar tus comidas de hoy.",
+        icon: "./assets/icons/icon-192.png",
+        badge: "./assets/icons/icon-192.png",
+        tag: "daily-reminder"
+      });
+    }).catch(function () {});
   }
 }());

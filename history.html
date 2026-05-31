@@ -16,18 +16,18 @@
   <main class="app-shell history-shell">
     <section class="header-card">
       <a class="back-link" href="index.html">&larr; Volver</a>
-      <h1>Buscar historial</h1>
+      <h1>Buscar historial <button class="info-btn" type="button" aria-label="Información" data-info-title="Buscar historial" data-info-body="Buscá entre todas tus entradas usando texto, tipo de registro o momento del día. Los resultados se agrupan por fecha.">ⓘ</button></h1>
       <p class="subcopy">Filtra comidas y sintomas por texto, tipo o momento del dia.</p>
     </section>
 
     <section class="form-card">
       <div class="filter-grid history-filter-grid">
         <label class="field-stack">
-          <span class="field-label">Buscar</span>
+          <span class="field-label">Buscar <button class="info-btn" type="button" aria-label="Información" data-info-title="Buscar por texto" data-info-body="Filtrá las entradas que contienen este texto en el nombre de la comida, el síntoma o las notas.">ⓘ</button></span>
           <input class="text-input" id="historySearchInput" type="search" placeholder="Ej: yogurt, reflujo, nota...">
         </label>
         <label class="field-stack">
-          <span class="field-label">Tipo</span>
+          <span class="field-label">Tipo <button class="info-btn" type="button" aria-label="Información" data-info-title="Tipo de registro" data-info-body="Mostrá solo comidas, solo síntomas, o ambos tipos de registros.">ⓘ</button></span>
           <select class="text-input" id="historyTypeFilter">
             <option value="all">Todo</option>
             <option value="food">Comidas</option>
@@ -35,7 +35,7 @@
           </select>
         </label>
         <label class="field-stack">
-          <span class="field-label">Momento</span>
+          <span class="field-label">Momento <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Filtrá por la franja horaria del registro: desayuno (D), snack (S), almuerzo (A), merienda (M) o cena (C).">ⓘ</button></span>
           <select class="text-input" id="historyMealFilter">
             <option value="all">Todos</option>
             <option value="d">Desayuno</option>
@@ -48,7 +48,7 @@
       </div>
 
       <div class="timeline-header">
-        <h3>Resultados</h3>
+        <h3>Resultados <button class="info-btn" type="button" aria-label="Información" data-info-title="Resultados" data-info-body="Entradas que coinciden con los filtros activos, agrupadas por fecha. Tocá una entrada para editarla.">ⓘ</button></h3>
         <p id="historyCount"></p>
       </div>
       <div class="history-results" id="historyResults"></div>

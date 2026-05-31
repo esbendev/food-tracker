@@ -16,7 +16,7 @@
   <main class="app-shell settings-shell">
     <section class="header-card">
       <a class="back-link" href="index.html">&larr; Volver</a>
-      <h1>Configuracion</h1>
+      <h1>Configuracion <button class="info-btn" type="button" aria-label="Información" data-info-title="Configuración" data-info-body="Administrá los datos de tu diario. Podés exportarlos, importarlos, borrarlos o configurar un recordatorio diario.">ⓘ</button></h1>
       <p class="subcopy">Pantalla reservada para las opciones de la app.</p>
     </section>
 
@@ -25,14 +25,29 @@
       <p class="subcopy">Aca vas a poder gestionar los datos guardados en el diario.</p>
       <section class="settings-stats" aria-labelledby="storageSummaryTitle">
         <div class="settings-stats-header">
-          <p class="section-title" id="storageSummaryTitle">Resumen guardado</p>
+          <p class="section-title" id="storageSummaryTitle">Resumen guardado <button class="info-btn" type="button" aria-label="Información" data-info-title="Resumen guardado" data-info-body="Cantidad de registros guardados en tu dispositivo y el espacio que ocupan en el almacenamiento local del navegador.">ⓘ</button></p>
           <p class="settings-storage-note" id="storageUsageLabel">Calculando...</p>
         </div>
         <div class="settings-stats-grid" id="settingsStatsGrid"></div>
       </section>
+      <section class="settings-tools" aria-labelledby="reminderTitle">
+        <div class="settings-stats-header">
+          <p class="section-title" id="reminderTitle">Recordatorio diario <button class="info-btn" type="button" aria-label="Información" data-info-title="Recordatorio diario" data-info-body="Activá una notificación a la hora que elijas para no olvidarte de registrar tus comidas y síntomas del día. Requiere permiso de notificaciones.">ⓘ</button></p>
+        </div>
+        <p class="subcopy">Recibí una notificación para no olvidarte de registrar tus comidas.</p>
+        <label class="reminder-toggle" for="reminderToggle">
+          <span>Activar recordatorio</span>
+          <input type="checkbox" id="reminderToggle" role="switch">
+        </label>
+        <div class="reminder-time-row" id="reminderTimeRow" hidden>
+          <label class="reminder-time-label" for="reminderTime">Hora</label>
+          <input class="reminder-time-input" type="time" id="reminderTime" value="09:00">
+        </div>
+        <p class="settings-helper" id="reminderStatus" aria-live="polite"></p>
+      </section>
       <section class="settings-tools" aria-labelledby="exportToolsTitle">
         <div class="settings-stats-header">
-          <p class="section-title" id="exportToolsTitle">Exportar e importar</p>
+          <p class="section-title" id="exportToolsTitle">Exportar e importar <button class="info-btn" type="button" aria-label="Información" data-info-title="Exportar e importar" data-info-body="Exportá tus datos como JSON para hacer un respaldo o moverlos a otro dispositivo. La importación reemplaza los datos que vengan en el archivo.">ⓘ</button></p>
           <p class="settings-storage-note">JSON listo para guardar o mover</p>
         </div>
         <div class="button-row">
@@ -43,6 +58,14 @@
           <button class="ghost-button" type="button" id="exportFoodSuggestionsBtn">Exportar sugerencias de comidas</button>
           <button class="ghost-button" type="button" id="exportSymptomSuggestionsBtn">Exportar sugerencias de sintomas</button>
           <button class="ghost-button" type="button" id="importDataBtn">Importar JSON</button>
+        </div>
+        <div class="settings-stats-header" style="margin-top:12px">
+          <p class="section-title">Exportar como CSV</p>
+          <p class="settings-storage-note">Para abrir en una planilla de calculo</p>
+        </div>
+        <div class="button-row">
+          <button class="ghost-button" type="button" id="exportFoodCsvBtn">CSV comidas</button>
+          <button class="ghost-button" type="button" id="exportSymptomCsvBtn">CSV sintomas</button>
         </div>
         <input type="file" id="importFileInput" accept="application/json,.json" hidden>
         <p class="settings-helper">La importacion reemplaza el bloque que venga en el archivo. Si importas un backup completo, reemplaza todas las claves de la app.</p>

@@ -58,7 +58,10 @@
     }
 
     saveTriggered = true;
-    saveEntries();
+
+    if (!saveEntries()) {
+      saveTriggered = false;
+    }
   }
 
   function saveEntries() {
@@ -71,7 +74,7 @@
     if (!values.length) {
       window.alert("Escribi al menos una comida antes de guardar.");
       app.focusLastInput(inputsStack);
-      return;
+      return false;
     }
 
     var meal = app.getSelectedMeal("meal");

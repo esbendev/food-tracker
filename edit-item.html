@@ -16,13 +16,13 @@
   <main class="app-shell form-shell">
     <section class="header-card">
       <a class="back-link" id="backLink" href="index.html">&larr; Volver</a>
-      <h1>Editar comida</h1>
+      <h1>Editar comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Editar comida" data-info-body="Modificá el momento del día o los alimentos registrados. Podés agregar o quitar items y guardar los cambios, o eliminar toda la entrada.">ⓘ</button></h1>
       <p class="subcopy" id="dateLabel"></p>
     </section>
 
     <section class="form-card">
       <div>
-        <p class="section-title">Elige una comida</p>
+        <p class="section-title">Elige una comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Elegí en qué franja horaria comiste: D (desayuno), S (snack), A (almuerzo), M (merienda) o C (cena).">ⓘ</button></p>
         <div class="meal-group" id="mealGroup">
           <div class="meal-option"><input id="meal-d" name="meal" type="radio" value="d"><label for="meal-d">d</label></div>
           <div class="meal-option"><input id="meal-s" name="meal" type="radio" value="s"><label for="meal-s">s</label></div>
@@ -33,7 +33,7 @@
       </div>
 
       <div>
-        <p class="section-title">Que comiste?</p>
+        <p class="section-title">Que comiste? <button class="info-btn" type="button" aria-label="Información" data-info-title="¿Qué comiste?" data-info-body="Actualizá la lista de alimentos. Podés agregar o quitar items. Al guardar, el registro original se reemplaza completamente con esta nueva versión.">ⓘ</button></p>
         <div class="inputs-stack" id="inputsStack"></div>
         <p class="hint">Actualiza la lista y guarda para reemplazar el registro.</p>
       </div>

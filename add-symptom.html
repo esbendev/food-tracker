@@ -16,13 +16,13 @@
   <main class="app-shell form-shell">
     <section class="header-card">
       <a class="back-link" href="index.html">&larr; Volver</a>
-      <h1>Agregar sintoma</h1>
+      <h1>Agregar sintoma <button class="info-btn" type="button" aria-label="Información" data-info-title="Agregar síntoma" data-info-body="Registrá los síntomas que sentís y en qué momento del día ocurrieron. Esto permite que la app los correlacione con tus comidas.">ⓘ</button></h1>
       <p class="subcopy" id="dateLabel"></p>
     </section>
 
     <section class="form-card">
       <div>
-        <p class="section-title">Elige una comida</p>
+        <p class="section-title">Elige una comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Indicá en qué franja horaria aparecieron los síntomas: D (desayuno), S (snack), A (almuerzo), M (merienda) o C (cena).">ⓘ</button></p>
         <div class="meal-group" id="mealGroup">
           <div class="meal-option"><input checked id="meal-d" name="meal" type="radio" value="d"><label for="meal-d">d</label></div>
           <div class="meal-option"><input id="meal-s" name="meal" type="radio" value="s"><label for="meal-s">s</label></div>
@@ -33,13 +33,13 @@
       </div>
 
       <div>
-        <p class="section-title">Que estas sintiendo?</p>
+        <p class="section-title">Que estas sintiendo? <button class="info-btn" type="button" aria-label="Información" data-info-title="¿Qué estás sintiendo?" data-info-body="Escribí el nombre del síntoma o malestar. Las sugerencias salen de tu historial. Tocá '+ Agregar otro' para registrar más síntomas a la vez.">ⓘ</button></p>
         <div class="inputs-stack" id="inputsStack"></div>
         <p class="hint">Las sugerencias vienen de tu historial guardado de sintomas.</p>
       </div>
 
       <div class="field-stack">
-        <label class="field-label" for="severityInput">Intensidad</label>
+        <label class="field-label" for="severityInput">Intensidad <button class="info-btn" type="button" aria-label="Información" data-info-title="Intensidad del síntoma" data-info-body="Calicá qué tan fuerte es el síntoma del 1 al 5. Ayuda a detectar cuándo los síntomas son más intensos y comparar entre episodios.">ⓘ</button></label>
         <select class="text-input" id="severityInput">
           <option value="1">1 · Muy leve</option>
           <option value="2">2 · Leve</option>
@@ -50,7 +50,7 @@
       </div>
 
       <div class="field-stack">
-        <label class="field-label" for="noteInput">Notas</label>
+        <label class="field-label" for="noteInput">Notas <button class="info-btn" type="button" aria-label="Información" data-info-title="Notas opcionales" data-info-body="Contexto adicional: cuánto duró, qué lo alivió, circunstancias especiales. Queda guardado con el registro y es visible en el historial.">ⓘ</button></label>
         <textarea class="text-input text-area" id="noteInput" rows="4" placeholder="Opcional: contexto, duracion, algo que ayude a recordar"></textarea>
       </div>
 

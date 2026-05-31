@@ -16,13 +16,13 @@
   <main class="app-shell form-shell">
     <section class="header-card">
       <a class="back-link" id="backLink" href="index.html">&larr; Volver</a>
-      <h1>Editar sintoma</h1>
+      <h1>Editar sintoma <button class="info-btn" type="button" aria-label="Información" data-info-title="Editar síntoma" data-info-body="Modificá el momento, los síntomas, la intensidad o las notas del registro existente. También podés eliminarlo con 'Eliminar síntoma'.">ⓘ</button></h1>
       <p class="subcopy" id="dateLabel"></p>
     </section>
 
     <section class="form-card">
       <div>
-        <p class="section-title">Elige una comida</p>
+        <p class="section-title">Elige una comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Indicá en qué franja horaria aparecieron los síntomas: D (desayuno), S (snack), A (almuerzo), M (merienda) o C (cena).">ⓘ</button></p>
         <div class="meal-group" id="mealGroup">
           <div class="meal-option"><input id="meal-d" name="meal" type="radio" value="d"><label for="meal-d">d</label></div>
           <div class="meal-option"><input id="meal-s" name="meal" type="radio" value="s"><label for="meal-s">s</label></div>
@@ -33,13 +33,13 @@
       </div>
 
       <div>
-        <p class="section-title">Que estas sintiendo?</p>
+        <p class="section-title">Que estas sintiendo? <button class="info-btn" type="button" aria-label="Información" data-info-title="¿Qué estás sintiendo?" data-info-body="Actualizá la lista de síntomas. Al guardar, el registro original se reemplaza completamente.">ⓘ</button></p>
         <div class="inputs-stack" id="inputsStack"></div>
         <p class="hint">Actualiza la lista y guarda para reemplazar el registro.</p>
       </div>
 
       <div class="field-stack">
-        <label class="field-label" for="severityInput">Intensidad</label>
+        <label class="field-label" for="severityInput">Intensidad <button class="info-btn" type="button" aria-label="Información" data-info-title="Intensidad del síntoma" data-info-body="Calicá qué tan fuerte es el síntoma del 1 al 5. Ayuda a detectar cuándo los síntomas son más intensos y comparar entre episodios.">ⓘ</button></label>
         <select class="text-input" id="severityInput">
           <option value="1">1 · Muy leve</option>
           <option value="2">2 · Leve</option>
@@ -50,7 +50,7 @@
       </div>
 
       <div class="field-stack">
-        <label class="field-label" for="noteInput">Notas</label>
+        <label class="field-label" for="noteInput">Notas <button class="info-btn" type="button" aria-label="Información" data-info-title="Notas opcionales" data-info-body="Editá el contexto adicional del registro: cuánto duró, qué lo alivió, circunstancias especiales.">ⓘ</button></label>
         <textarea class="text-input text-area" id="noteInput" rows="4" placeholder="Opcional: contexto, duracion, algo que ayude a recordar"></textarea>
       </div>
 

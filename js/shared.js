@@ -28,7 +28,9 @@
     normalizeSeverity: normalizeSeverity,
     getCorrelationWindowOptions: getCorrelationWindowOptions,
     buildDashboardSummary: buildDashboardSummary,
-    buildHistoryEntries: buildHistoryEntries
+    buildHistoryEntries: buildHistoryEntries,
+    buildCsvExport: buildCsvExport,
+    showInfoModal: showInfoModal
   };
 
   function readArray(key) {
@@ -402,12 +404,14 @@
       });
     });
 
+    var totalTrackedDates = trackedDateCount(trackedDatesMap);
+
     pairList.forEach(function (pair) {
       var symptomDates = symptomDateMap[pair.symptom] || {};
       var symptomDateCount = Object.keys(symptomDates).length;
       pair.foodCount = foodCounts[pair.food] || 0;
       pair.followRate = pair.foodCount ? pair.followCount / pair.foodCount : 0;
-      pair.baselineRate = trackedDateCount(trackedDatesMap) ? symptomDateCount / trackedDateCount(trackedDatesMap) : 0;
+      pair.baselineRate = totalTrackedDates ? symptomDateCount / totalTrackedDates : 0;
       pair.lift = pair.baselineRate ? pair.followRate / pair.baselineRate : 0;
       pair.riskDelta = pair.followRate - pair.baselineRate;
       pair.averageSeverity = pair.followCount ? pair.totalSeverity / pair.followCount : 0;
@@ -425,14 +429,92 @@
       return left.food.localeCompare(right.food, "es");
     });
 
+    var foodsWithAnyFollows = {};
+
+    pairList.forEach(function (pair) {
+      if (pair.followCount > 0) {
+        foodsWithAnyFollows[pair.food] = true;
+      }
+    });
+
+    var safeFoodList = Object.keys(foodCounts)
+      .filter(function (food) { return !foodsWithAnyFollows[food]; })
+      .map(function (food) { return { food: food, foodCount: foodCounts[food] }; })
+      .sort(function (left, right) { return right.foodCount - left.foodCount; });
+
     return {
-      trackedDates: trackedDateCount(trackedDatesMap),
+      trackedDates: totalTrackedDates,
       foodsTracked: Object.keys(foodCounts).length,
       symptomsTracked: Object.keys(symptomDateMap).length,
       windowPreset: windowConfig.value,
       windowLabel: windowConfig.label,
-      pairs: pairList
+      pairs: pairList,
+      safeFoods: safeFoodList,
+      symptomPairs: buildSymptomCooccurrencePairs(symptomGroups)
     };
+  }
+
+  function buildSymptomCooccurrencePairs(symptomGroups) {
+    var symptomDayCounts = {};
+    var coOccurrenceCounts = {};
+    var i;
+    var j;
+
+    Object.keys(symptomGroups).forEach(function (dateKey) {
+      var daySymptoms = [];
+
+      Object.keys(symptomGroups[dateKey]).forEach(function (mealKey) {
+        symptomGroups[dateKey][mealKey].forEach(function (event) {
+          if (daySymptoms.indexOf(event.label) === -1) {
+            daySymptoms.push(event.label);
+          }
+        });
+      });
+
+      daySymptoms.forEach(function (sym) {
+        symptomDayCounts[sym] = (symptomDayCounts[sym] || 0) + 1;
+      });
+
+      for (i = 0; i < daySymptoms.length; i++) {
+        for (j = i + 1; j < daySymptoms.length; j++) {
+          var symA = daySymptoms[i];
+          var symB = daySymptoms[j];
+          var key = symA < symB ? symA + "::" + symB : symB + "::" + symA;
+
+          coOccurrenceCounts[key] = (coOccurrenceCounts[key] || 0) + 1;
+        }
+      }
+    });
+
+    var pairs = [];
+
+    Object.keys(coOccurrenceCounts).forEach(function (key) {
+      var parts = key.split("::");
+      var symA = parts[0];
+      var symB = parts[1];
+      var coCount = coOccurrenceCounts[key];
+      var countA = symptomDayCounts[symA] || 1;
+      var countB = symptomDayCounts[symB] || 1;
+
+      pairs.push({
+        symA: symA,
+        symB: symB,
+        coCount: coCount,
+        countA: countA,
+        countB: countB,
+        rateAtoB: coCount / countA,
+        rateBtoA: coCount / countB
+      });
+    });
+
+    pairs.sort(function (left, right) {
+      if (right.coCount !== left.coCount) {
+        return right.coCount - left.coCount;
+      }
+      return left.symA.localeCompare(right.symA, "es");
+    });
+
+    return pairs;
   }
 
   function getCorrelationWindowConfig(windowPreset) {
@@ -886,4 +968,149 @@
       href: config.href
     });
   }
+
+  function buildCsvExport(type) {
+    var MEAL_LABELS = window.foodTracker.MEAL_LABELS;
+
+    if (type === "food") {
+      var foodRecords = readArray("food_records");
+      var rows = [["fecha", "momento", "alimentos"]];
+
+      foodRecords.forEach(function (record) {
+        if (!record || typeof record.date !== "string" || !Array.isArray(record.items)) {
+          return;
+        }
+        rows.push([
+          record.date,
+          MEAL_LABELS[record.meal] || record.meal || "",
+          record.items.join(", ")
+        ]);
+      });
+
+      return { fileName: "comidas.csv", csv: rowsToCsv(rows) };
+    }
+
+    if (type === "symptom") {
+      var symptomRecords = readArray("symptom_records");
+      var rows = [["fecha", "momento", "sintomas", "intensidad", "nota"]];
+
+      symptomRecords.forEach(function (record) {
+        if (!record || typeof record.date !== "string" || !Array.isArray(record.symptoms)) {
+          return;
+        }
+        rows.push([
+          record.date,
+          MEAL_LABELS[record.meal] || record.meal || "",
+          record.symptoms.join(", "),
+          record.severity != null ? String(record.severity) : "",
+          sanitizeValue(record.note)
+        ]);
+      });
+
+      return { fileName: "sintomas.csv", csv: rowsToCsv(rows) };
+    }
+
+    return { fileName: "export.csv", csv: "" };
+  }
+
+  function rowsToCsv(rows) {
+    return rows.map(function (row) {
+      return row.map(function (cell) {
+        var value = String(cell == null ? "" : cell);
+
+        if (value.indexOf(",") !== -1 || value.indexOf('"') !== -1 || value.indexOf("\n") !== -1) {
+          return '"' + value.replace(/"/g, '""') + '"';
+        }
+        return value;
+      }).join(",");
+    }).join("\n");
+  }
+
+  function showInfoModal(title, body) {
+    var existing = document.querySelector(".info-modal-overlay");
+
+    if (existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+
+    var overlay = document.createElement("div");
+    overlay.className = "info-modal-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+
+    var modal = document.createElement("div");
+    modal.className = "info-modal";
+
+    var header = document.createElement("div");
+    header.className = "info-modal-header";
+
+    var titleEl = document.createElement("p");
+    titleEl.className = "info-modal-title";
+    titleEl.textContent = title;
+
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "info-modal-close";
+    closeBtn.setAttribute("aria-label", "Cerrar");
+    closeBtn.textContent = "\xd7";
+
+    header.appendChild(titleEl);
+    header.appendChild(closeBtn);
+
+    var bodyEl = document.createElement("p");
+    bodyEl.className = "info-modal-body";
+    bodyEl.textContent = body;
+
+    modal.appendChild(header);
+    modal.appendChild(bodyEl);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    function closeModal() {
+      overlay.classList.add("is-closing");
+
+      function handleAnimEnd(event) {
+        if (event.target !== overlay) { return; }
+        overlay.removeEventListener("animationend", handleAnimEnd);
+
+        if (overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }
+
+      overlay.addEventListener("animationend", handleAnimEnd);
+    }
+
+    closeBtn.addEventListener("click", function (event) {
+      event.stopPropagation();
+      closeModal();
+    });
+
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay) {
+        closeModal();
+      }
+    });
+
+    function handleKey(event) {
+      if (event.key === "Escape") {
+        document.removeEventListener("keydown", handleKey);
+        closeModal();
+      }
+    }
+
+    document.addEventListener("keydown", handleKey);
+  }
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest(".info-btn");
+
+    if (!btn) { return; }
+
+    event.stopPropagation();
+    showInfoModal(
+      btn.getAttribute("data-info-title") || "",
+      btn.getAttribute("data-info-body") || ""
+    );
+  });
 }());

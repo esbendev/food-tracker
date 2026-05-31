@@ -60,7 +60,10 @@
     }
 
     saveTriggered = true;
-    saveEntries();
+
+    if (!saveEntries()) {
+      saveTriggered = false;
+    }
   }
 
   function saveEntries() {
@@ -76,7 +79,7 @@
     if (!values.length) {
       window.alert("Escribi al menos un sintoma antes de guardar.");
       app.focusLastInput(inputsStack);
-      return;
+      return false;
     }
 
     var meal = app.getSelectedMeal("meal");

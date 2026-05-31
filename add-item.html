@@ -16,13 +16,13 @@
   <main class="app-shell form-shell">
     <section class="header-card">
       <a class="back-link" href="index.html">&larr; Volver</a>
-      <h1>Agregar comida</h1>
+      <h1>Agregar comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Agregar comida" data-info-body="Registrá los alimentos que comiste en un momento específico del día. Podés agregar varios alimentos a la vez y las sugerencias se generan a partir de tu historial.">ⓘ</button></h1>
       <p class="subcopy" id="dateLabel"></p>
     </section>
 
     <section class="form-card">
       <div>
-        <p class="section-title">Elige una comida</p>
+        <p class="section-title">Elige una comida <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Elegí en qué franja horaria comiste: D (desayuno), S (snack), A (almuerzo), M (merienda) o C (cena).">ⓘ</button></p>
         <div class="meal-group" id="mealGroup">
           <div class="meal-option"><input checked id="meal-d" name="meal" type="radio" value="d"><label for="meal-d">d</label></div>
           <div class="meal-option"><input id="meal-s" name="meal" type="radio" value="s"><label for="meal-s">s</label></div>
@@ -33,7 +33,7 @@
       </div>
 
       <div>
-        <p class="section-title">Que comiste?</p>
+        <p class="section-title">Que comiste? <button class="info-btn" type="button" aria-label="Información" data-info-title="¿Qué comiste?" data-info-body="Escribí el nombre de cada alimento por separado. Las sugerencias salen de tu historial. Tocá '+ Agregar otra' para incluir más items en la misma comida.">ⓘ</button></p>
         <div class="inputs-stack" id="inputsStack"></div>
         <p class="hint">Las sugerencias vienen de tu historial guardado de comidas.</p>
       </div>

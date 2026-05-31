@@ -9,6 +9,10 @@
   var matrixCount = document.getElementById("matrixCount");
   var detailPanel = document.getElementById("detailPanel");
   var detailBadge = document.getElementById("detailBadge");
+  var safeFoodsWrap = document.getElementById("safeFoodsWrap");
+  var safeFoodsCount = document.getElementById("safeFoodsCount");
+  var cooccurWrap = document.getElementById("cooccurWrap");
+  var cooccurCount = document.getElementById("cooccurCount");
   var selectedPairKey = "";
   var currentPairs = [];
   var currentWindowLabel = "";
@@ -44,6 +48,8 @@
     renderSummary(report, currentPairs);
     renderMatrix(currentPairs);
     renderDetail(findPairByKey(selectedPairKey, currentPairs));
+    renderSafeFoods(report.safeFoods.filter(function (f) { return f.foodCount >= minCount; }));
+    renderSymptomCooccurrence(report.symptomPairs);
   }
 
   function getFilters() {
@@ -297,5 +303,89 @@
 
   function getHeat(lift) {
     return Math.max(0.08, Math.min(0.5, lift / 6));
+  }
+
+  function renderSafeFoods(safeFoods) {
+    if (!safeFoodsWrap || !safeFoodsCount) {
+      return;
+    }
+
+    safeFoodsWrap.innerHTML = "";
+
+    if (!safeFoods.length) {
+      safeFoodsCount.textContent = "";
+      safeFoodsWrap.innerHTML = '<div class="empty-panel">Sin alimentos seguros confirmados con estos filtros. Proba ampliar el rango o bajar el minimo de apariciones.</div>';
+      return;
+    }
+
+    safeFoodsCount.textContent = safeFoods.length + (safeFoods.length === 1 ? " alimento" : " alimentos");
+
+    var list = document.createElement("div");
+
+    list.className = "safe-tags";
+    safeFoods.forEach(function (item) {
+      var tag = document.createElement("span");
+
+      tag.className = "safe-tag";
+      tag.textContent = item.food + " (" + item.foodCount + ")";
+      list.appendChild(tag);
+    });
+
+    safeFoodsWrap.appendChild(list);
+  }
+
+  function renderSymptomCooccurrence(symptomPairs) {
+    if (!cooccurWrap || !cooccurCount) {
+      return;
+    }
+
+    cooccurWrap.innerHTML = "";
+
+    if (!symptomPairs.length) {
+      cooccurCount.textContent = "";
+      cooccurWrap.innerHTML = '<div class="empty-panel">No hay datos suficientes para detectar sintomas que aparezcan juntos.</div>';
+      return;
+    }
+
+    cooccurCount.textContent = symptomPairs.length + (symptomPairs.length === 1 ? " par" : " pares");
+
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    var headerRow = document.createElement("tr");
+    var headers = ["Sintoma A", "Sintoma B", "Dias juntos", "P(B|A)", "P(A|B)"];
+    var tbody = document.createElement("tbody");
+
+    table.className = "cooccur-table";
+    headers.forEach(function (text) {
+      var th = document.createElement("th");
+
+      th.textContent = text;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    symptomPairs.forEach(function (pair) {
+      var row = document.createElement("tr");
+      var cells = [
+        pair.symA,
+        pair.symB,
+        pair.coCount,
+        formatPercent(pair.rateAtoB),
+        formatPercent(pair.rateBtoA)
+      ];
+
+      cells.forEach(function (value) {
+        var td = document.createElement("td");
+
+        td.textContent = String(value);
+        row.appendChild(td);
+      });
+
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    cooccurWrap.appendChild(table);
   }
 }());

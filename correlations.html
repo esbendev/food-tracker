@@ -16,15 +16,15 @@
   <main class="app-shell insights-shell">
     <section class="header-card">
       <a class="back-link" href="index.html">&larr; Volver</a>
-      <h1>Correlaciones</h1>
+      <h1>Correlaciones <button class="info-btn" type="button" aria-label="Información" data-info-title="Correlaciones" data-info-body="Analizá qué alimentos están asociados con tus síntomas. La app cruza las comidas con los síntomas registrados dentro de la ventana de tiempo configurada.">ⓘ</button></h1>
       <p class="subcopy">Compara comidas y sintomas por misma comida, mas tarde ese dia y al dia siguiente.</p>
     </section>
 
     <section class="form-card">
-      <p class="section-title">Filtros</p>
+      <p class="section-title">Filtros <button class="info-btn" type="button" aria-label="Información" data-info-title="Filtros de análisis" data-info-body="Configurá el período, el momento del día y los criterios mínimos para el análisis. Cambiá los filtros y los resultados se actualizan automáticamente.">ⓘ</button></p>
       <div class="filter-grid">
         <label class="field-stack">
-          <span class="field-label">Rango</span>
+          <span class="field-label">Rango <button class="info-btn" type="button" aria-label="Información" data-info-title="Rango de fechas" data-info-body="Período de tiempo que se incluye en el análisis. Un rango mayor da más datos pero puede diluir patrones recientes.">ⓘ</button></span>
           <select class="text-input" id="rangeFilter">
             <option value="30">Ultimos 30 dias</option>
             <option value="90">Ultimos 90 dias</option>
@@ -33,7 +33,7 @@
           </select>
         </label>
         <label class="field-stack">
-          <span class="field-label">Momento</span>
+          <span class="field-label">Momento <button class="info-btn" type="button" aria-label="Información" data-info-title="Momento del día" data-info-body="Limitá el análisis a una franja horaria específica. Por defecto incluye todas las comidas.">ⓘ</button></span>
           <select class="text-input" id="mealFilter">
             <option value="all">Todas</option>
             <option value="d">Desayuno</option>
@@ -44,7 +44,7 @@
           </select>
         </label>
         <label class="field-stack">
-          <span class="field-label">Minimo</span>
+          <span class="field-label">Minimo <button class="info-btn" type="button" aria-label="Información" data-info-title="Mínimo de apariciones" data-info-body="Una comida debe aparecer al menos esta cantidad de veces para incluirse en el análisis. Filtra alimentos comidos muy pocas veces.">ⓘ</button></span>
           <select class="text-input" id="minCountFilter">
             <option value="1">1 aparicion</option>
             <option value="2" selected>2 apariciones</option>
@@ -53,7 +53,7 @@
           </select>
         </label>
         <label class="field-stack">
-          <span class="field-label">Ventana</span>
+          <span class="field-label">Ventana <button class="info-btn" type="button" aria-label="Información" data-info-title="Ventana de tiempo" data-info-body="Tiempo que se considera después de comer para buscar síntomas: solo la misma comida, cualquier momento del mismo día, o también el día siguiente.">ⓘ</button></span>
           <select class="text-input" id="windowFilter">
             <option value="meal">Solo misma comida</option>
             <option value="day">Mismo dia</option>
@@ -65,7 +65,7 @@
 
     <section class="form-card matrix-section">
       <div class="timeline-header">
-        <h3>Mapa de calor</h3>
+        <h3>Mapa de calor <button class="info-btn" type="button" aria-label="Información" data-info-title="Mapa de calor" data-info-body="Tabla que cruza alimentos (filas) con síntomas (columnas). Cada celda muestra el porcentaje de veces que el síntoma apareció después de esa comida. El color más intenso indica mayor correlación respecto a tu línea base. Tocá una celda para ver el detalle.">ⓘ</button></h3>
         <p id="matrixCount"></p>
       </div>
       <div class="summary-grid" id="summaryGrid"></div>
@@ -75,10 +75,28 @@
 
     <section class="form-card detail-section">
       <div class="detail-heading">
-        <h3>Detalle</h3>
+        <h3>Detalle <button class="info-btn" type="button" aria-label="Información" data-info-title="Detalle de correlación" data-info-body="Al tocar una celda del mapa de calor, acá se muestran los días exactos en que coincidieron esa comida y ese síntoma.">ⓘ</button></h3>
         <p id="detailBadge"></p>
       </div>
       <div id="detailPanel"></div>
+    </section>
+
+    <section class="form-card">
+      <div class="timeline-header">
+        <h3>Alimentos seguros <button class="info-btn" type="button" aria-label="Información" data-info-title="Alimentos seguros" data-info-body="Comidas que, en el período y ventana seleccionados, nunca estuvieron seguidas por ningún síntoma. Deben aparecer al menos la cantidad mínima configurada.">ⓘ</button></h3>
+        <p id="safeFoodsCount"></p>
+      </div>
+      <p class="matrix-help">Comidas registradas en el periodo seleccionado que nunca estuvieron seguidas por ningun sintoma dentro de la ventana activa. Requiere el minimo de apariciones configurado.</p>
+      <div id="safeFoodsWrap"></div>
+    </section>
+
+    <section class="form-card">
+      <div class="timeline-header">
+        <h3>Co-ocurrencia de sintomas <button class="info-btn" type="button" aria-label="Información" data-info-title="Co-ocurrencia de síntomas" data-info-body="Pares de síntomas que tendieron a aparecer el mismo día, independientemente de las comidas. Puede indicar síntomas relacionados entre sí.">ⓘ</button></h3>
+        <p id="cooccurCount"></p>
+      </div>
+      <p class="matrix-help">Pares de sintomas que tendieron a aparecer el mismo dia, independientemente de las comidas.</p>
+      <div id="cooccurWrap"></div>
     </section>
   </main>
 

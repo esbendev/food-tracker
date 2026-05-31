@@ -11,12 +11,6 @@
     FOOD_HISTORY_KEY,
     SYMPTOM_HISTORY_KEY
   ];
-  var STORAGE_KEYS = [
-    FOOD_RECORDS_KEY,
-    SYMPTOM_RECORDS_KEY,
-    FOOD_HISTORY_KEY,
-    SYMPTOM_HISTORY_KEY
-  ];
   var DATASET_LABELS = {};
   DATASET_LABELS[FOOD_RECORDS_KEY] = "comidas";
   DATASET_LABELS[SYMPTOM_RECORDS_KEY] = "sintomas";
@@ -31,12 +25,20 @@
   var exportSymptomRecordsButton = document.getElementById("exportSymptomRecordsBtn");
   var exportFoodSuggestionsButton = document.getElementById("exportFoodSuggestionsBtn");
   var exportSymptomSuggestionsButton = document.getElementById("exportSymptomSuggestionsBtn");
+  var exportFoodCsvButton = document.getElementById("exportFoodCsvBtn");
+  var exportSymptomCsvButton = document.getElementById("exportSymptomCsvBtn");
   var importDataButton = document.getElementById("importDataBtn");
   var importFileInput = document.getElementById("importFileInput");
   var settingsStatsGrid = document.getElementById("settingsStatsGrid");
   var storageUsageLabel = document.getElementById("storageUsageLabel");
   var settingsVersion = document.getElementById("settingsVersion");
   var settingsFeedback = document.getElementById("settingsFeedback");
+  var REMINDER_ENABLED_KEY = "reminder_enabled";
+  var REMINDER_TIME_KEY = "reminder_time";
+  var reminderToggle = document.getElementById("reminderToggle");
+  var reminderTime = document.getElementById("reminderTime");
+  var reminderTimeRow = document.getElementById("reminderTimeRow");
+  var reminderStatus = document.getElementById("reminderStatus");
 
   if (!clearFoodSuggestionsButton && !clearSymptomSuggestionsButton && !clearStorageButton) {
     return;
@@ -44,7 +46,9 @@
 
   loadVersion();
   renderStorageSummary();
+  initReminder();
   bindExportActions();
+  bindCsvExportActions();
   bindImportAction();
 
   bindClearAction(clearFoodSuggestionsButton, {
@@ -66,7 +70,7 @@
   bindClearAction(clearStorageButton, {
     message: "Seguro que queres borrar todo? Se van a eliminar todas las comidas, sintomas y datos guardados.",
     onConfirm: function () {
-      STORAGE_KEYS.forEach(function (key) {
+      MANAGED_KEYS.forEach(function (key) {
         window.localStorage.removeItem(key);
       });
     },
@@ -444,6 +448,42 @@
     }, 0);
   }
 
+  function downloadCsv(fileName, csvContent) {
+    var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    var url = window.URL.createObjectURL(blob);
+    var link = document.createElement("a");
+
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.setTimeout(function () {
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+  function bindCsvExportActions() {
+    if (exportFoodCsvButton) {
+      exportFoodCsvButton.addEventListener("click", function () {
+        var result = window.foodTracker.buildCsvExport("food");
+
+        downloadCsv(result.fileName, result.csv);
+        setFeedback("CSV de comidas exportado.", false);
+      });
+    }
+
+    if (exportSymptomCsvButton) {
+      exportSymptomCsvButton.addEventListener("click", function () {
+        var result = window.foodTracker.buildCsvExport("symptom");
+
+        downloadCsv(result.fileName, result.csv);
+        setFeedback("CSV de sintomas exportado.", false);
+      });
+    }
+  }
+
   function readJsonFile(file) {
     return new Promise(function (resolve, reject) {
       var reader = new FileReader();
@@ -562,6 +602,165 @@
     }
 
     return (unitIndex === 0 ? String(size) : size.toFixed(size < 10 ? 1 : 0)) + " " + units[unitIndex];
+  }
+
+  function initReminder() {
+    if (!reminderToggle || !reminderTime) {
+      return;
+    }
+
+    var isEnabled = window.localStorage.getItem(REMINDER_ENABLED_KEY) === "true";
+    var savedTime = window.localStorage.getItem(REMINDER_TIME_KEY) || "09:00";
+
+    reminderToggle.checked = isEnabled;
+    reminderTime.value = savedTime;
+
+    if (reminderTimeRow) {
+      reminderTimeRow.hidden = !isEnabled;
+    }
+
+    reminderToggle.addEventListener("change", function () {
+      onReminderToggleChange();
+    });
+
+    reminderTime.addEventListener("change", function () {
+      window.localStorage.setItem(REMINDER_TIME_KEY, reminderTime.value);
+    });
+
+    renderReminderStatus();
+  }
+
+  function onReminderToggleChange() {
+    var isEnabled = reminderToggle.checked;
+
+    if (isEnabled) {
+      requestNotificationPermission(function (granted) {
+        if (!granted) {
+          reminderToggle.checked = false;
+          renderReminderStatus();
+          return;
+        }
+
+        window.localStorage.setItem(REMINDER_ENABLED_KEY, "true");
+
+        if (reminderTimeRow) {
+          reminderTimeRow.hidden = false;
+        }
+
+        registerPeriodicSync();
+        renderReminderStatus();
+      });
+    } else {
+      window.localStorage.setItem(REMINDER_ENABLED_KEY, "false");
+
+      if (reminderTimeRow) {
+        reminderTimeRow.hidden = true;
+      }
+
+      unregisterPeriodicSync();
+      renderReminderStatus();
+    }
+  }
+
+  function requestNotificationPermission(callback) {
+    if (!("Notification" in window)) {
+      callback(false);
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      callback(true);
+      return;
+    }
+
+    if (Notification.permission === "denied") {
+      callback(false);
+      return;
+    }
+
+    Notification.requestPermission().then(function (permission) {
+      callback(permission === "granted");
+    }).catch(function () {
+      callback(false);
+    });
+  }
+
+  function registerPeriodicSync() {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (!("periodicSync" in reg)) {
+        return;
+      }
+
+      return reg.periodicSync.register("daily-reminder", {
+        minInterval: 24 * 60 * 60 * 1000
+      });
+    }).catch(function () {});
+  }
+
+  function unregisterPeriodicSync() {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (!("periodicSync" in reg)) {
+        return;
+      }
+
+      return reg.periodicSync.unregister("daily-reminder");
+    }).catch(function () {});
+  }
+
+  function renderReminderStatus() {
+    if (!reminderStatus) {
+      return;
+    }
+
+    if (!("Notification" in window)) {
+      reminderStatus.textContent = "Las notificaciones no son compatibles con este navegador.";
+
+      if (reminderToggle) {
+        reminderToggle.disabled = true;
+      }
+
+      return;
+    }
+
+    var isEnabled = window.localStorage.getItem(REMINDER_ENABLED_KEY) === "true";
+
+    if (!isEnabled) {
+      reminderStatus.textContent = "";
+      return;
+    }
+
+    if (Notification.permission === "denied") {
+      reminderStatus.textContent = "Permiso denegado. Habilitalo desde la configuracion del navegador o del sistema.";
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.ready.then(function (reg) {
+          if ("periodicSync" in reg) {
+            reminderStatus.textContent = "Activo. El sistema enviara un recordatorio en segundo plano una vez por dia.";
+          } else {
+            reminderStatus.textContent = "Activo. Se mostrara un recordatorio la primera vez que abras la app despues de la hora configurada.";
+          }
+        }).catch(function () {
+          reminderStatus.textContent = "Activo.";
+        });
+      } else {
+        reminderStatus.textContent = "Activo.";
+      }
+
+      return;
+    }
+
+    reminderStatus.textContent = "";
   }
 
   function loadVersion() {

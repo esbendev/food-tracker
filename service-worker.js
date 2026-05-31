@@ -1,4 +1,4 @@
-var CACHE_NAME = "food-tracker-v20260531-7";
+var CACHE_NAME = "food-tracker-v20260531-9";
 var APP_SHELL = [
   "./",
   "./index.html",
@@ -94,6 +94,21 @@ self.addEventListener("fetch", function (event) {
 
         return Response.error();
       });
+    })
+  );
+});
+
+self.addEventListener("periodicsync", function (event) {
+  if (event.tag !== "daily-reminder") {
+    return;
+  }
+
+  event.waitUntil(
+    self.registration.showNotification("Food Tracker", {
+      body: "No te olvides de registrar tus comidas de hoy.",
+      icon: "./assets/icons/icon-192.png",
+      badge: "./assets/icons/icon-192.png",
+      tag: "daily-reminder"
     })
   );
 });

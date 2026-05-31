@@ -19,7 +19,7 @@
         <p class="eyebrow">Registro diario</p>
         <a class="settings-link" href="settings.html" aria-label="Abrir configuracion">&#9881;&#65039;</a>
       </div>
-      <h1>Diario de comidas y sintomas</h1>
+      <h1>Diario de comidas y sintomas <button class="info-btn" type="button" aria-label="Información" data-info-title="Diario de comidas" data-info-body="Registrá lo que comés y los síntomas que sentís cada día. Seleccioná una fecha en el calendario para ver o agregar entradas a ese día.">ⓘ</button></h1>
       <p class="selected-date" id="selectedDateLabel"></p>
       <div class="hero-actions">
         <div class="action-row">
@@ -37,7 +37,10 @@
     <section class="calendar-card">
       <div class="calendar-header">
         <button class="month-button" type="button" id="prevMonthBtn" aria-label="Mes anterior">&#8249;</button>
-        <h2 id="monthLabel"></h2>
+        <div class="calendar-header-title">
+          <h2 id="monthLabel"></h2>
+          <button class="info-btn" type="button" aria-label="Información" data-info-title="Calendario mensual" data-info-body="Tocá cualquier día para ver sus entradas en la línea del tiempo. Los puntos de colores indican días con comidas (morado) o síntomas (rosa) registrados.">ⓘ</button>
+        </div>
         <button class="month-button" type="button" id="nextMonthBtn" aria-label="Mes siguiente">&#8250;</button>
       </div>
       <div class="weekday-row" aria-hidden="true">
@@ -54,7 +57,7 @@
 
     <section class="timeline-card">
       <div class="timeline-header">
-        <h3>Linea del dia</h3>
+        <h3>Linea del dia <button class="info-btn" type="button" aria-label="Información" data-info-title="Línea del día" data-info-body="Lista de comidas y síntomas registrados para el día seleccionado, en orden cronológico. Tocá una entrada para editarla o eliminarla.">ⓘ</button></h3>
         <p id="timelineCount"></p>
       </div>
       <div class="timeline-list" id="timelineList"></div>
