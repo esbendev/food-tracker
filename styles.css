@@ -143,6 +143,12 @@ h1 {
   gap: 12px;
 }
 
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .action-link,
 .month-button,
 .day-button,
@@ -892,5 +898,221 @@ select.text-input {
 
   .row-label {
     min-width: 120px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    max-width: 1360px;
+    padding: 24px 28px 28px;
+    gap: 16px;
+  }
+
+  .dashboard-shell {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) minmax(640px, 2fr);
+    grid-template-areas:
+      "calendar hero"
+      "calendar timeline";
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    height: calc(100vh - 52px);
+  }
+
+  .dashboard-shell .top-card {
+    grid-area: hero;
+    padding: 20px;
+    gap: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    grid-template-areas:
+      "meta meta"
+      "title actions"
+      "date actions";
+    align-items: start;
+  }
+
+  .dashboard-shell .top-card-meta {
+    grid-area: meta;
+  }
+
+  .dashboard-shell .top-card h1 {
+    grid-area: title;
+    margin: 0;
+    align-self: end;
+  }
+
+  .dashboard-shell .selected-date {
+    grid-area: date;
+    align-self: start;
+  }
+
+  .dashboard-shell .hero-actions {
+    grid-area: actions;
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .dashboard-shell .calendar-card {
+    grid-area: calendar;
+    padding: 18px;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .dashboard-shell .timeline-card {
+    grid-area: timeline;
+    padding: 24px;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .dashboard-shell h1 {
+    font-size: 2.2rem;
+    max-width: 10ch;
+  }
+
+  .dashboard-shell .selected-date {
+    font-size: 1rem;
+  }
+
+  .dashboard-shell .action-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-shell .insight-link {
+    margin-top: 0;
+  }
+
+  .dashboard-shell .day-button {
+    min-height: 64px;
+    padding: 8px 0 10px;
+  }
+
+  .dashboard-shell .timeline-list {
+    min-height: 0;
+  }
+
+  .form-shell {
+    max-width: 1220px;
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .form-shell .header-card {
+    position: sticky;
+    top: 32px;
+    padding: 24px;
+  }
+
+  .form-shell .form-card {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .form-shell .meal-group {
+    grid-template-columns: repeat(5, minmax(92px, 1fr));
+    gap: 10px;
+  }
+
+  .form-shell .inputs-stack {
+    gap: 16px;
+  }
+
+  .form-shell .button-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .form-shell .button-row > * {
+    flex: 1 1 220px;
+  }
+
+  .insights-shell {
+    max-width: 1380px;
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    grid-template-areas:
+      "header matrix"
+      "filters matrix"
+      "filters detail";
+    align-items: start;
+  }
+
+  .insights-shell .header-card {
+    grid-area: header;
+    padding: 24px;
+  }
+
+  .insights-shell .form-card:not(.matrix-section):not(.detail-section) {
+    grid-area: filters;
+    padding: 24px;
+  }
+
+  .insights-shell .matrix-section {
+    grid-area: matrix;
+    padding: 24px;
+  }
+
+  .insights-shell .detail-section {
+    grid-area: detail;
+    padding: 24px;
+  }
+
+  .insights-shell .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-shell .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .insights-shell .matrix-wrap {
+    max-height: 60vh;
+  }
+
+  .settings-shell {
+    max-width: 1260px;
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .settings-shell .header-card {
+    position: sticky;
+    top: 32px;
+    padding: 24px;
+  }
+
+  .settings-shell .form-card {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .settings-shell .settings-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .settings-shell .settings-tools {
+    gap: 16px;
+  }
+
+  .settings-shell .button-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .settings-shell .button-row > * {
+    flex: 1 1 220px;
+  }
+
+  .settings-shell .settings-credit,
+  .settings-shell .settings-version {
+    text-align: left;
   }
 }

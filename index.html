@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="page-home">
-  <main class="app-shell">
+  <main class="app-shell dashboard-shell">
     <section class="top-card">
       <div class="top-card-meta">
         <p class="eyebrow">Registro diario</p>
@@ -21,11 +21,13 @@
       </div>
       <h1>Diario de comidas y sintomas</h1>
       <p class="selected-date" id="selectedDateLabel"></p>
-      <div class="action-row">
-        <a class="action-link" id="newFoodLink" href="add-item.html">+ Nueva comida</a>
-        <a class="action-link" id="newSymptomLink" href="add-symptom.html">+ Nuevo sintoma</a>
+      <div class="hero-actions">
+        <div class="action-row">
+          <a class="action-link" id="newFoodLink" href="add-item.html">+ Nueva comida</a>
+          <a class="action-link" id="newSymptomLink" href="add-symptom.html">+ Nuevo sintoma</a>
+        </div>
+        <a class="ghost-button insight-link" href="correlations.html">Ver correlaciones</a>
       </div>
-      <a class="ghost-button insight-link" href="correlations.html">Ver correlaciones</a>
     </section>
 
     <section class="calendar-card">
