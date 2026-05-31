@@ -9,7 +9,7 @@
   var timelineCount = document.getElementById("timelineCount");
   var newFoodLink = document.getElementById("newFoodLink");
   var newSymptomLink = document.getElementById("newSymptomLink");
-  var selectedDate = app.formatDate(new Date());
+  var selectedDate = app.getViewDateParam() || app.formatDate(new Date());
   var visibleMonth = new Date();
 
   visibleMonth.setDate(1);
@@ -35,26 +35,44 @@
 
   function getEntriesForDate(dateValue) {
     var foodEntries = app.readArray(FOOD_KEY)
-      .filter(function (entry) {
+      .map(function (entry, index) {
+        return {
+          entry: entry,
+          index: index
+        };
+      })
+      .filter(function (record) {
+        var entry = record.entry;
         return entry && entry.date === dateValue && Array.isArray(entry.items) && entry.items.length;
       })
-      .map(function (entry) {
+      .map(function (record) {
+        var entry = record.entry;
         return {
           type: "food",
           meal: entry.meal,
-          values: entry.items
+          values: entry.items,
+          recordIndex: record.index
         };
       });
 
     var symptomEntries = app.readArray(SYMPTOM_KEY)
-      .filter(function (entry) {
+      .map(function (entry, index) {
+        return {
+          entry: entry,
+          index: index
+        };
+      })
+      .filter(function (record) {
+        var entry = record.entry;
         return entry && entry.date === dateValue && Array.isArray(entry.symptoms) && entry.symptoms.length;
       })
-      .map(function (entry) {
+      .map(function (record) {
+        var entry = record.entry;
         return {
           type: "symptom",
           meal: entry.meal,
-          values: entry.symptoms
+          values: entry.symptoms,
+          recordIndex: record.index
         };
       });
 
@@ -167,13 +185,16 @@
     }
 
     entries.forEach(function (entry) {
-      var card = document.createElement("article");
+      var card = document.createElement("a");
       var topLine = document.createElement("div");
       var typeLabel = document.createElement("span");
       var mealLabel = document.createElement("span");
       var list = document.createElement("ul");
+      var cardLabel = entry.type === "food" ? "Editar comida" : "Editar sintoma";
 
       card.className = "timeline-entry " + entry.type;
+      card.href = buildEditHref(entry);
+      card.setAttribute("aria-label", cardLabel + " de " + (app.MEAL_LABELS[entry.meal] || entry.meal));
       topLine.className = "timeline-topline";
       typeLabel.className = "entry-type";
       mealLabel.className = "entry-meal";
@@ -200,6 +221,13 @@
   function refreshActions() {
     newFoodLink.href = "add-item.html?date=" + encodeURIComponent(selectedDate);
     newSymptomLink.href = "add-symptom.html?date=" + encodeURIComponent(selectedDate);
+  }
+
+  function buildEditHref(entry) {
+    var page = entry.type === "food" ? "edit-item.html" : "edit-symptom.html";
+
+    return page + "?index=" + encodeURIComponent(entry.recordIndex) +
+      "&viewDate=" + encodeURIComponent(selectedDate);
   }
 
   function ensureMarker(dateKey, markers) {

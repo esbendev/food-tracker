@@ -13,13 +13,17 @@
     formatDate: formatDate,
     prettyDate: prettyDate,
     getDateParam: getDateParam,
+    getViewDateParam: getViewDateParam,
     sanitizeValue: sanitizeValue,
     normalizeLabel: normalizeLabel,
     getSelectedMeal: getSelectedMeal,
+    setSelectedMeal: setSelectedMeal,
     createSuggestionInput: createSuggestionInput,
     focusLastInput: focusLastInput,
     bindMealFocus: bindMealFocus,
     getNextDate: getNextDate,
+    getNumericParam: getNumericParam,
+    findRecordByIndex: findRecordByIndex,
     buildCorrelationReport: buildCorrelationReport
   };
 
@@ -84,6 +88,12 @@
     return parseDateValue(value) ? value : formatDate(new Date());
   }
 
+  function getViewDateParam() {
+    var params = new URLSearchParams(window.location.search);
+    var value = params.get("viewDate");
+    return parseDateValue(value) ? value : "";
+  }
+
   function sanitizeValue(value) {
     return String(value || "").trim();
   }
@@ -100,6 +110,45 @@
   function getSelectedMeal(name) {
     var checked = document.querySelector('input[name="' + name + '"]:checked');
     return checked ? checked.value : "d";
+  }
+
+  function setSelectedMeal(name, value) {
+    var input = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+
+    if (input) {
+      input.checked = true;
+    }
+  }
+
+  function getNumericParam(name) {
+    var params = new URLSearchParams(window.location.search);
+    var rawValue = params.get(name);
+    var value = Number(rawValue);
+
+    if (!rawValue || !Number.isInteger(value) || value < 0) {
+      return -1;
+    }
+
+    return value;
+  }
+
+  function findRecordByIndex(key, index, valuesKey) {
+    var records = readArray(key);
+    var record = records[index];
+
+    if (!record || typeof record.date !== "string" || !Array.isArray(record[valuesKey])) {
+      return {
+        records: records,
+        record: null,
+        index: -1
+      };
+    }
+
+    return {
+      records: records,
+      record: record,
+      index: index
+    };
   }
 
   function createSuggestionInput(options) {

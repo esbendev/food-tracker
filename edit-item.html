@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9d8df1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Tracker">
+  <title>Editar comida</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-food">
+  <main class="app-shell">
+    <section class="header-card">
+      <a class="back-link" id="backLink" href="index.html">&larr; Volver</a>
+      <h1>Editar comida</h1>
+      <p class="subcopy" id="dateLabel"></p>
+    </section>
+
+    <section class="form-card">
+      <div>
+        <p class="section-title">Elige una comida</p>
+        <div class="meal-group" id="mealGroup">
+          <div class="meal-option"><input id="meal-d" name="meal" type="radio" value="d"><label for="meal-d">d</label></div>
+          <div class="meal-option"><input id="meal-s" name="meal" type="radio" value="s"><label for="meal-s">s</label></div>
+          <div class="meal-option"><input id="meal-a" name="meal" type="radio" value="a"><label for="meal-a">a</label></div>
+          <div class="meal-option"><input id="meal-m" name="meal" type="radio" value="m"><label for="meal-m">m</label></div>
+          <div class="meal-option"><input id="meal-c" name="meal" type="radio" value="c"><label for="meal-c">c</label></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-title">Que comiste?</p>
+        <div class="inputs-stack" id="inputsStack"></div>
+        <p class="hint">Actualiza la lista y guarda para reemplazar el registro.</p>
+      </div>
+
+      <div class="button-row">
+        <button class="ghost-button" id="addAnotherBtn" type="button">+ Agregar otra</button>
+        <button class="ghost-button danger-button" id="deleteBtn" type="button">Eliminar comida</button>
+        <button class="save-button" id="saveBtn" type="button">Guardar cambios</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/shared.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/edit-item.js"></script>
+</body>
+</html>

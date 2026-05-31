@@ -355,6 +355,8 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .timeline-entry.food {
@@ -370,6 +372,11 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   align-items: center;
+}
+
+.timeline-entry:focus-visible {
+  outline: 2px solid rgba(157, 141, 241, 0.38);
+  outline-offset: 2px;
 }
 
 .entry-type,
