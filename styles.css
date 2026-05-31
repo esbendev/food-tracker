@@ -58,6 +58,20 @@ body.page-insights {
     var(--bg);
 }
 
+body.page-summary {
+  background:
+    radial-gradient(circle at top left, rgba(157, 141, 241, 0.34), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(99, 195, 178, 0.2), transparent 32%),
+    var(--bg);
+}
+
+body.page-history {
+  background:
+    radial-gradient(circle at top right, rgba(157, 141, 241, 0.28), transparent 32%),
+    radial-gradient(circle at bottom left, rgba(99, 195, 178, 0.18), transparent 28%),
+    var(--bg);
+}
+
 h1,
 p {
   margin: 0;
@@ -322,6 +336,12 @@ h1 {
   min-height: 0;
 }
 
+.home-insights-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
 .timeline-header {
   display: flex;
   align-items: baseline;
@@ -409,6 +429,177 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-severity {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(226, 160, 255, 0.18);
+  color: #8d55c2;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.entry-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.sample-warning,
+.insight-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.sample-warning {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 198, 107, 0.22);
+  color: #8f5a15;
+}
+
+.home-insight-block,
+.leader-card,
+.history-group {
+  border-radius: var(--radius-md);
+  background: var(--panel-soft);
+}
+
+.home-insight-block {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compact-title {
+  margin-bottom: 0;
+}
+
+.trigger-list,
+.history-results,
+.history-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trigger-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  text-decoration: none;
+}
+
+.trigger-card strong {
+  font-size: 0.95rem;
+}
+
+.trigger-card span,
+.trend-label,
+.history-date,
+.leader-list {
+  color: var(--muted);
+}
+
+.trend-chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+  gap: 8px;
+  align-items: end;
+  min-height: 110px;
+}
+
+.trend-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.trend-bars {
+  min-height: 76px;
+  width: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 4px;
+}
+
+.trend-bar {
+  width: 11px;
+  border-radius: 999px 999px 4px 4px;
+  display: inline-block;
+}
+
+.trend-bar.food {
+  background: var(--food);
+}
+
+.trend-bar.symptom {
+  background: var(--symptom);
+}
+
+.trend-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.leader-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.leader-card {
+  padding: 12px;
+}
+
+.leader-card strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.leader-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compact-empty {
+  min-height: 96px;
+}
+
+.history-results {
+  min-height: 280px;
+}
+
+.history-group {
+  padding: 14px;
+}
+
+.history-date {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .timeline-empty {
@@ -504,6 +695,13 @@ body.page-symptom .meal-option input:checked + label {
   font-size: 1rem;
   color: var(--text);
   box-shadow: inset 0 0 0 1px rgba(157, 141, 241, 0.12);
+}
+
+.text-area {
+  min-height: 108px;
+  padding: 14px;
+  resize: vertical;
+  font: inherit;
 }
 
 body.page-food .text-input:focus {
@@ -896,6 +1094,10 @@ select.text-input {
     grid-template-columns: 1fr;
   }
 
+  .leader-grid {
+    grid-template-columns: 1fr;
+  }
+
   .row-label {
     min-width: 120px;
   }
@@ -1114,5 +1316,45 @@ select.text-input {
   .settings-shell .settings-credit,
   .settings-shell .settings-version {
     text-align: left;
+  }
+
+  .summary-shell {
+    max-width: 1260px;
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .summary-shell .header-card {
+    position: sticky;
+    top: 32px;
+    padding: 24px;
+  }
+
+  .summary-shell .form-card {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .history-shell {
+    max-width: 1260px;
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .history-shell .header-card {
+    position: sticky;
+    top: 32px;
+    padding: 24px;
+  }
+
+  .history-shell .form-card {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .history-shell .history-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

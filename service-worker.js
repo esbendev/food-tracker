@@ -1,8 +1,10 @@
-var CACHE_NAME = "food-tracker-v20260531-4";
+var CACHE_NAME = "food-tracker-v20260531-7";
 var APP_SHELL = [
   "./",
   "./index.html",
   "./correlations.html",
+  "./history.html",
+  "./resumen.html",
   "./settings.html",
   "./add-item.html",
   "./add-symptom.html",
@@ -13,6 +15,8 @@ var APP_SHELL = [
   "./js/pwa.js",
   "./js/index.js",
   "./js/correlations.js",
+  "./js/history.js",
+  "./js/resumen.js",
   "./js/add-item.js",
   "./js/add-symptom.js",
   "./js/edit-item.js",

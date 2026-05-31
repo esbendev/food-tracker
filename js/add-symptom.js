@@ -7,6 +7,8 @@
   var mealGroup = document.getElementById("mealGroup");
   var inputsStack = document.getElementById("inputsStack");
   var dateLabel = document.getElementById("dateLabel");
+  var severityInput = document.getElementById("severityInput");
+  var noteInput = document.getElementById("noteInput");
   var addAnotherBtn = document.getElementById("addAnotherBtn");
   var saveBtn = document.getElementById("saveBtn");
 
@@ -63,6 +65,9 @@
 
   function saveEntries() {
     var values = Array.prototype.slice.call(document.querySelectorAll(".text-input"))
+      .filter(function (input) {
+        return input !== severityInput && input !== noteInput;
+      })
       .map(function (input) {
         return app.sanitizeValue(input.value);
       })
@@ -77,11 +82,15 @@
     var meal = app.getSelectedMeal("meal");
     var records = app.readArray(RECORD_KEY);
     var history = app.readArray(HISTORY_KEY);
+    var severity = app.normalizeSeverity(severityInput ? severityInput.value : 3);
+    var note = app.sanitizeValue(noteInput ? noteInput.value : "");
 
     records.push({
       date: selectedDate,
       meal: meal,
-      symptoms: values
+      symptoms: values,
+      severity: severity,
+      note: note
     });
 
     values.forEach(function (value) {
@@ -92,7 +101,7 @@
 
     app.writeArray(RECORD_KEY, records);
     app.writeArray(HISTORY_KEY, history);
-    window.location.href = "index.html";
+    window.location.href = "index.html?viewDate=" + encodeURIComponent(selectedDate);
   }
 
   function addInputField(initialValue) {

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9d8df1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Tracker">
+  <title>Historial</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-history">
+  <main class="app-shell history-shell">
+    <section class="header-card">
+      <a class="back-link" href="index.html">&larr; Volver</a>
+      <h1>Buscar historial</h1>
+      <p class="subcopy">Filtra comidas y sintomas por texto, tipo o momento del dia.</p>
+    </section>
+
+    <section class="form-card">
+      <div class="filter-grid history-filter-grid">
+        <label class="field-stack">
+          <span class="field-label">Buscar</span>
+          <input class="text-input" id="historySearchInput" type="search" placeholder="Ej: yogurt, reflujo, nota...">
+        </label>
+        <label class="field-stack">
+          <span class="field-label">Tipo</span>
+          <select class="text-input" id="historyTypeFilter">
+            <option value="all">Todo</option>
+            <option value="food">Comidas</option>
+            <option value="symptom">Sintomas</option>
+          </select>
+        </label>
+        <label class="field-stack">
+          <span class="field-label">Momento</span>
+          <select class="text-input" id="historyMealFilter">
+            <option value="all">Todos</option>
+            <option value="d">Desayuno</option>
+            <option value="s">Snack</option>
+            <option value="a">Almuerzo</option>
+            <option value="m">Merienda</option>
+            <option value="c">Cena</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="timeline-header">
+        <h3>Resultados</h3>
+        <p id="historyCount"></p>
+      </div>
+      <div class="history-results" id="historyResults"></div>
+    </section>
+  </main>
+
+  <script src="js/shared.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9d8df1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Tracker">
+  <title>Resumen</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-summary">
+  <main class="app-shell summary-shell">
+    <section class="header-card">
+      <a class="back-link" href="index.html">&larr; Volver</a>
+      <h1>Resumen</h1>
+      <p class="subcopy">Mira sospechas, tendencias y lo mas repetido sin sacar foco del registro diario.</p>
+    </section>
+
+    <section class="form-card">
+      <div class="timeline-header">
+        <h3>Ultimas 8 semanas</h3>
+        <p id="summaryStatus">Calculando...</p>
+      </div>
+      <div class="home-insights-panel" id="summaryInsightsPanel"></div>
+    </section>
+  </main>
+
+  <script src="js/shared.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/resumen.js"></script>
+</body>
+</html>

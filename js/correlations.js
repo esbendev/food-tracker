@@ -3,6 +3,7 @@
   var rangeFilter = document.getElementById("rangeFilter");
   var mealFilter = document.getElementById("mealFilter");
   var minCountFilter = document.getElementById("minCountFilter");
+  var windowFilter = document.getElementById("windowFilter");
   var summaryGrid = document.getElementById("summaryGrid");
   var matrixWrap = document.getElementById("matrixWrap");
   var matrixCount = document.getElementById("matrixCount");
@@ -10,14 +11,16 @@
   var detailBadge = document.getElementById("detailBadge");
   var selectedPairKey = "";
   var currentPairs = [];
+  var currentWindowLabel = "";
 
-  if (!rangeFilter || !mealFilter || !minCountFilter) {
+  if (!rangeFilter || !mealFilter || !minCountFilter || !windowFilter) {
     return;
   }
 
   rangeFilter.addEventListener("change", render);
   mealFilter.addEventListener("change", render);
   minCountFilter.addEventListener("change", render);
+  windowFilter.addEventListener("change", render);
   window.addEventListener("storage", render);
 
   render();
@@ -25,6 +28,8 @@
   function render() {
     var report = app.buildCorrelationReport(getFilters());
     var minCount = Number(minCountFilter.value || 1);
+
+    currentWindowLabel = report.windowLabel || "mismo dia + dia siguiente";
 
     currentPairs = report.pairs.filter(function (pair) {
       return pair.foodCount >= minCount && pair.followCount > 0;
@@ -57,7 +62,8 @@
     return {
       meal: mealFilter.value,
       startDate: startDate,
-      endDate: today
+      endDate: today,
+      windowPreset: windowFilter.value
     };
   }
 
@@ -66,7 +72,9 @@
     var cards = [
       { value: report.trackedDates, label: report.trackedDates === 1 ? "dia analizado" : "dias analizados" },
       { value: report.foodsTracked, label: report.foodsTracked === 1 ? "comida normalizada" : "comidas normalizadas" },
-      { value: topPair ? topPair.food + " -> " + topPair.symptom : "-", label: "correlacion mas fuerte" }
+      { value: report.symptomsTracked, label: report.symptomsTracked === 1 ? "sintoma visto" : "sintomas vistos" },
+      { value: topPair ? topPair.food + " -> " + topPair.symptom : "-", label: "correlacion mas fuerte" },
+      { value: report.windowLabel || "-", label: "ventana activa" }
     ];
 
     summaryGrid.innerHTML = "";
@@ -83,7 +91,9 @@
       summaryGrid.appendChild(element);
     });
 
-    matrixCount.textContent = pairs.length ? pairs.length + (pairs.length === 1 ? " relacion" : " relaciones") : "Sin relaciones";
+    matrixCount.textContent = pairs.length
+      ? pairs.length + (pairs.length === 1 ? " relacion" : " relaciones") + " · " + (report.windowLabel || "")
+      : "Sin relaciones";
   }
 
   function renderMatrix(pairs) {
@@ -139,7 +149,8 @@
         } else {
           button.style.setProperty("--heat", String(getHeat(pair.lift)));
           button.innerHTML = '<span class="cell-rate">' + formatPercent(pair.followRate) + '</span>' +
-            '<span class="cell-meta">' + pair.followCount + '/' + pair.foodCount + ' · lift ' + formatLift(pair.lift) + '</span>';
+            '<span class="cell-meta">' + pair.followCount + '/' + pair.foodCount + ' · conf ' + pair.confidence + '</span>';
+          button.title = 'Base ' + formatPercent(pair.baselineRate) + ' · delta ' + formatSignedPercent(pair.riskDelta) + ' · lift ' + formatLift(pair.lift);
           button.addEventListener("click", function () {
             selectedPairKey = getPairKey(pair);
             renderMatrix(currentPairs);
@@ -175,13 +186,25 @@
     var examples = document.createElement("ul");
 
     intro.className = "detail-copy";
-    intro.textContent = "Esta relacion mide cuantas veces el sintoma aparecio despues de registrar esa comida en la ventana elegida por la app.";
+    intro.textContent = "Esta relacion mide cuantas veces el sintoma aparecio despues de registrar esa comida dentro de la ventana activa: " + currentWindowLabel + ".";
     detailPanel.appendChild(intro);
+
+    if (pair.confidence === "baja") {
+      var warning = document.createElement("p");
+
+      warning.className = "sample-warning";
+      warning.textContent = "Muestra chica: tomalo como una pista, no como una conclusion fuerte.";
+      detailPanel.appendChild(warning);
+    }
 
     metrics.className = "metric-grid";
     buildMetricCard(metrics, pair.foodCount, pair.foodCount === 1 ? "vez que se registro la comida" : "veces que se registro la comida");
     buildMetricCard(metrics, formatPercent(pair.followRate), "apariciones con sintoma despues");
+    buildMetricCard(metrics, formatPercent(pair.baselineRate), "linea base del sintoma");
+    buildMetricCard(metrics, formatSignedPercent(pair.riskDelta), "cambio frente a la base");
     buildMetricCard(metrics, formatLift(pair.lift), "lift frente a la linea base");
+    buildMetricCard(metrics, pair.confidence, "confianza por muestra");
+    buildMetricCard(metrics, formatSeverity(pair.averageSeverity), "intensidad promedio despues");
     buildMetricCard(metrics, pair.sameMealCount, "misma comida");
     buildMetricCard(metrics, pair.laterDayCount, "mas tarde ese dia");
     buildMetricCard(metrics, pair.nextDayCount, "al dia siguiente");
@@ -194,7 +217,16 @@
     examples.className = "example-list";
     pair.examples.forEach(function (example) {
       var item = document.createElement("li");
-      item.textContent = app.prettyDate(example.date) + " · " + (app.MEAL_LABELS[example.meal] || example.meal) + " · " + example.window;
+      var text = app.prettyDate(example.date) + " · " + (app.MEAL_LABELS[example.meal] || example.meal) + " · " + example.window;
+
+      if (example.severity) {
+        text += " · intensidad " + example.severity + "/5";
+      }
+      if (example.note) {
+        text += " · " + example.note;
+      }
+
+      item.textContent = text;
       examples.appendChild(item);
     });
 
@@ -249,8 +281,18 @@
     return Math.round(value * 100) + "%";
   }
 
+  function formatSignedPercent(value) {
+    var percent = Math.round(value * 100);
+
+    return (percent > 0 ? "+" : "") + percent + "%";
+  }
+
   function formatLift(value) {
     return value ? value.toFixed(1) + "x" : "0x";
+  }
+
+  function formatSeverity(value) {
+    return value ? value.toFixed(1) + "/5" : "0/5";
   }
 
   function getHeat(lift) {

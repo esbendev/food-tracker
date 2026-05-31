@@ -38,6 +38,22 @@
         <p class="hint">Las sugerencias vienen de tu historial guardado de sintomas.</p>
       </div>
 
+      <div class="field-stack">
+        <label class="field-label" for="severityInput">Intensidad</label>
+        <select class="text-input" id="severityInput">
+          <option value="1">1 · Muy leve</option>
+          <option value="2">2 · Leve</option>
+          <option value="3" selected>3 · Media</option>
+          <option value="4">4 · Fuerte</option>
+          <option value="5">5 · Muy fuerte</option>
+        </select>
+      </div>
+
+      <div class="field-stack">
+        <label class="field-label" for="noteInput">Notas</label>
+        <textarea class="text-input text-area" id="noteInput" rows="4" placeholder="Opcional: contexto, duracion, algo que ayude a recordar"></textarea>
+      </div>
+
       <div class="button-row">
         <button class="ghost-button" id="addAnotherBtn" type="button">+ Agregar otro</button>
         <button class="save-button" id="saveBtn" type="button">Guardar sintoma</button>

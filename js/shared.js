@@ -24,7 +24,11 @@
     getNextDate: getNextDate,
     getNumericParam: getNumericParam,
     findRecordByIndex: findRecordByIndex,
-    buildCorrelationReport: buildCorrelationReport
+    buildCorrelationReport: buildCorrelationReport,
+    normalizeSeverity: normalizeSeverity,
+    getCorrelationWindowOptions: getCorrelationWindowOptions,
+    buildDashboardSummary: buildDashboardSummary,
+    buildHistoryEntries: buildHistoryEntries
   };
 
   function readArray(key) {
@@ -285,15 +289,47 @@
     return formatDate(date);
   }
 
+  function normalizeSeverity(value) {
+    var severity = Number(value);
+
+    if (!severity || severity < 1) {
+      return 3;
+    }
+
+    if (severity > 5) {
+      return 5;
+    }
+
+    return Math.round(severity);
+  }
+
+  function getCorrelationWindowOptions() {
+    return [
+      {
+        value: "meal",
+        label: "Solo misma comida"
+      },
+      {
+        value: "day",
+        label: "Mismo dia"
+      },
+      {
+        value: "next-day",
+        label: "Mismo dia + dia siguiente"
+      }
+    ];
+  }
+
   function buildCorrelationReport(options) {
     var config = options || {};
     var mealFilter = config.meal && config.meal !== "all" ? config.meal : null;
     var startDate = config.startDate || "";
     var endDate = config.endDate || "";
+    var windowConfig = getCorrelationWindowConfig(config.windowPreset);
     var foodRecords = readArray("food_records");
     var symptomRecords = readArray("symptom_records");
     var foodGroups = groupRecords(foodRecords, "items", mealFilter, startDate, endDate);
-    var symptomGroups = groupRecords(symptomRecords, "symptoms", null, startDate, endDate);
+    var symptomGroups = groupSymptomRecords(symptomRecords, startDate, endDate);
     var trackedDatesMap = {};
     var symptomDateMap = {};
     var foodCounts = {};
@@ -306,10 +342,11 @@
     Object.keys(symptomGroups).forEach(function (dateKey) {
       Object.keys(symptomGroups[dateKey]).forEach(function (mealKey) {
         symptomGroups[dateKey][mealKey].forEach(function (symptom) {
-          if (!symptomDateMap[symptom]) {
-            symptomDateMap[symptom] = {};
+          if (!symptomDateMap[symptom.label]) {
+            symptomDateMap[symptom.label] = {};
           }
-          symptomDateMap[symptom][dateKey] = true;
+
+          symptomDateMap[symptom.label][dateKey] = true;
         });
       });
     });
@@ -317,60 +354,49 @@
     Object.keys(foodGroups).forEach(function (dateKey) {
       window.foodTracker.MEAL_ORDER.forEach(function (mealKey, mealIndex) {
         var foodsAtMeal = (foodGroups[dateKey] && foodGroups[dateKey][mealKey]) || [];
-        var sameMealSymptoms = uniqueValues((symptomGroups[dateKey] && symptomGroups[dateKey][mealKey]) || []);
-        var laterDaySymptoms = [];
-        var nextDaySymptoms = [];
-        var nextDate = getNextDate(dateKey);
+        var windowStates = {};
 
         if (!foodsAtMeal.length) {
           return;
         }
 
-        window.foodTracker.MEAL_ORDER.slice(mealIndex + 1).forEach(function (laterMealKey) {
-          laterDaySymptoms = laterDaySymptoms.concat((symptomGroups[dateKey] && symptomGroups[dateKey][laterMealKey]) || []);
-        });
+        if (windowConfig.sameMeal) {
+          collectSymptomsForWindow((symptomGroups[dateKey] && symptomGroups[dateKey][mealKey]) || [], windowStates, "sameMeal", "Misma comida");
+        }
 
-        if (symptomGroups[nextDate]) {
-          Object.keys(symptomGroups[nextDate]).forEach(function (nextMealKey) {
-            nextDaySymptoms = nextDaySymptoms.concat(symptomGroups[nextDate][nextMealKey]);
+        if (windowConfig.laterDay) {
+          window.foodTracker.MEAL_ORDER.slice(mealIndex + 1).forEach(function (laterMealKey) {
+            collectSymptomsForWindow((symptomGroups[dateKey] && symptomGroups[dateKey][laterMealKey]) || [], windowStates, "laterDay", "Mas tarde ese dia");
           });
         }
 
-        laterDaySymptoms = uniqueValues(laterDaySymptoms);
-        nextDaySymptoms = uniqueValues(nextDaySymptoms);
+        if (windowConfig.nextDay) {
+          collectNextDaySymptoms(symptomGroups, dateKey, windowStates);
+        }
 
         foodsAtMeal.forEach(function (food) {
           foodCounts[food] = (foodCounts[food] || 0) + 1;
 
-          var seenSymptoms = {};
+          Object.keys(windowStates).forEach(function (symptomKey) {
+            var state = windowStates[symptomKey];
+            var pair = ensurePair(food, symptomKey, pairs, pairList);
 
-          sameMealSymptoms.forEach(function (symptom) {
-            var pair = ensurePair(food, symptom, pairs, pairList);
-            pair.sameMealCount += 1;
-            seenSymptoms[symptom] = seenSymptoms[symptom] || "sameMeal";
-            addExample(pair, dateKey, mealKey, "Misma comida");
-          });
-
-          laterDaySymptoms.forEach(function (symptom) {
-            var pair = ensurePair(food, symptom, pairs, pairList);
-            pair.laterDayCount += 1;
-            if (!seenSymptoms[symptom]) {
-              seenSymptoms[symptom] = "laterDay";
-              addExample(pair, dateKey, mealKey, "Mas tarde ese dia");
+            if (state.sameMeal) {
+              pair.sameMealCount += 1;
             }
-          });
-
-          nextDaySymptoms.forEach(function (symptom) {
-            var pair = ensurePair(food, symptom, pairs, pairList);
-            pair.nextDayCount += 1;
-            if (!seenSymptoms[symptom]) {
-              seenSymptoms[symptom] = "nextDay";
-              addExample(pair, dateKey, mealKey, "Al dia siguiente");
+            if (state.laterDay) {
+              pair.laterDayCount += 1;
             }
-          });
+            if (state.nextDay) {
+              pair.nextDayCount += 1;
+            }
 
-          Object.keys(seenSymptoms).forEach(function (symptom) {
-            ensurePair(food, symptom, pairs, pairList).followCount += 1;
+            pair.followCount += 1;
+            pair.totalSeverity += state.maxSeverity;
+            addExample(pair, dateKey, mealKey, state.windowLabel, {
+              severity: state.maxSeverity,
+              note: state.note
+            });
           });
         });
       });
@@ -383,6 +409,9 @@
       pair.followRate = pair.foodCount ? pair.followCount / pair.foodCount : 0;
       pair.baselineRate = trackedDateCount(trackedDatesMap) ? symptomDateCount / trackedDateCount(trackedDatesMap) : 0;
       pair.lift = pair.baselineRate ? pair.followRate / pair.baselineRate : 0;
+      pair.riskDelta = pair.followRate - pair.baselineRate;
+      pair.averageSeverity = pair.followCount ? pair.totalSeverity / pair.followCount : 0;
+      pair.confidence = getConfidenceLabel(pair.foodCount, pair.followCount);
       pair.strength = pair.followCount * pair.lift;
     });
 
@@ -400,7 +429,39 @@
       trackedDates: trackedDateCount(trackedDatesMap),
       foodsTracked: Object.keys(foodCounts).length,
       symptomsTracked: Object.keys(symptomDateMap).length,
+      windowPreset: windowConfig.value,
+      windowLabel: windowConfig.label,
       pairs: pairList
+    };
+  }
+
+  function getCorrelationWindowConfig(windowPreset) {
+    if (windowPreset === "meal") {
+      return {
+        value: "meal",
+        label: "solo misma comida",
+        sameMeal: true,
+        laterDay: false,
+        nextDay: false
+      };
+    }
+
+    if (windowPreset === "day") {
+      return {
+        value: "day",
+        label: "mismo dia",
+        sameMeal: true,
+        laterDay: true,
+        nextDay: false
+      };
+    }
+
+    return {
+      value: "next-day",
+      label: "mismo dia + dia siguiente",
+      sameMeal: true,
+      laterDay: true,
+      nextDay: true
     };
   }
 
@@ -442,6 +503,118 @@
     return grouped;
   }
 
+  function groupSymptomRecords(records, startDate, endDate) {
+    var grouped = {};
+
+    records.forEach(function (entry) {
+      var severity;
+      var note;
+
+      if (!entry || typeof entry.date !== "string" || !Array.isArray(entry.symptoms) || !entry.symptoms.length) {
+        return;
+      }
+      if (startDate && entry.date < startDate) {
+        return;
+      }
+      if (endDate && entry.date > endDate) {
+        return;
+      }
+
+      severity = normalizeSeverity(entry.severity);
+      note = sanitizeValue(entry.note);
+
+      if (!grouped[entry.date]) {
+        grouped[entry.date] = {};
+      }
+      if (!grouped[entry.date][entry.meal]) {
+        grouped[entry.date][entry.meal] = [];
+      }
+
+      entry.symptoms.forEach(function (rawValue) {
+        var normalized = normalizeLabel(rawValue);
+        var existing;
+
+        if (!normalized) {
+          return;
+        }
+
+        existing = grouped[entry.date][entry.meal].find(function (event) {
+          return event.label === normalized;
+        }) || null;
+
+        if (existing) {
+          if (severity > existing.severity) {
+            existing.severity = severity;
+            existing.note = note || existing.note;
+          }
+          return;
+        }
+
+        grouped[entry.date][entry.meal].push({
+          label: normalized,
+          severity: severity,
+          note: note
+        });
+      });
+    });
+
+    return grouped;
+  }
+
+  function collectSymptomsForWindow(events, target, key, label) {
+    events.forEach(function (event) {
+      var state;
+
+      if (!event || !event.label) {
+        return;
+      }
+
+      state = target[event.label];
+      if (!state) {
+        state = {
+          sameMeal: false,
+          laterDay: false,
+          nextDay: false,
+          maxSeverity: 0,
+          note: "",
+          windowLabel: label
+        };
+        target[event.label] = state;
+      }
+
+      state[key] = true;
+      if (!state.windowLabel || getWindowPriority(label) < getWindowPriority(state.windowLabel)) {
+        state.windowLabel = label;
+      }
+      if (event.severity >= state.maxSeverity) {
+        state.maxSeverity = event.severity;
+        state.note = event.note || state.note;
+      }
+    });
+  }
+
+  function collectNextDaySymptoms(symptomGroups, dateKey, target) {
+    var nextDate = getNextDate(dateKey);
+
+    if (!symptomGroups[nextDate]) {
+      return;
+    }
+
+    Object.keys(symptomGroups[nextDate]).forEach(function (nextMealKey) {
+      collectSymptomsForWindow(symptomGroups[nextDate][nextMealKey], target, "nextDay", "Al dia siguiente");
+    });
+  }
+
+  function getWindowPriority(label) {
+    if (label === "Misma comida") {
+      return 1;
+    }
+    if (label === "Mas tarde ese dia") {
+      return 2;
+    }
+    return 3;
+  }
+
   function uniqueValues(values) {
     return values.filter(function (value, index) {
       return values.indexOf(value) === index;
@@ -473,6 +646,10 @@
         followRate: 0,
         baselineRate: 0,
         lift: 0,
+        riskDelta: 0,
+        averageSeverity: 0,
+        totalSeverity: 0,
+        confidence: "baja",
         strength: 0,
         examples: []
       };
@@ -482,7 +659,19 @@
     return pairs[key];
   }
 
-  function addExample(pair, dateKey, mealKey, label) {
+  function getConfidenceLabel(foodCount, followCount) {
+    if (foodCount >= 8 && followCount >= 4) {
+      return "alta";
+    }
+
+    if (foodCount >= 4 && followCount >= 2) {
+      return "media";
+    }
+
+    return "baja";
+  }
+
+  function addExample(pair, dateKey, mealKey, label, details) {
     var alreadyIncluded = pair.examples.some(function (example) {
       return example.date === dateKey && example.meal === mealKey && example.window === label;
     });
@@ -494,7 +683,207 @@
     pair.examples.push({
       date: dateKey,
       meal: mealKey,
-      window: label
+      window: label,
+      severity: details && details.severity ? details.severity : 0,
+      note: details && details.note ? details.note : ""
+    });
+  }
+
+  function buildDashboardSummary(options) {
+    var config = options || {};
+    var days = Number(config.days || 56);
+    var foodRecords = readArray("food_records");
+    var symptomRecords = readArray("symptom_records");
+    var correlationReport = buildCorrelationReport({
+      meal: "all",
+      startDate: getRelativeDate(days),
+      endDate: formatDate(new Date()),
+      windowPreset: "next-day"
+    });
+
+    return {
+      suspectedTriggers: correlationReport.pairs.slice(0, 3),
+      weeklyTrend: buildWeeklyTrend(foodRecords, symptomRecords, days),
+      symptomLeaders: buildTopLabels(symptomRecords, "symptoms", days, 4),
+      foodLeaders: buildTopLabels(foodRecords, "items", days, 4)
+    };
+  }
+
+  function buildWeeklyTrend(foodRecords, symptomRecords, days) {
+    var startDate = getRelativeDate(days);
+    var buckets = {};
+
+    foodRecords.forEach(function (record) {
+      if (!record || !record.date || record.date < startDate) {
+        return;
+      }
+
+      incrementWeeklyBucket(buckets, record.date, "food", Array.isArray(record.items) ? record.items.length : 0);
+    });
+
+    symptomRecords.forEach(function (record) {
+      if (!record || !record.date || record.date < startDate) {
+        return;
+      }
+
+      incrementWeeklyBucket(buckets, record.date, "symptom", Array.isArray(record.symptoms) ? record.symptoms.length : 0);
+      incrementWeeklyBucket(buckets, record.date, "severity", normalizeSeverity(record.severity));
+    });
+
+    return Object.keys(buckets).sort().map(function (weekKey) {
+      return {
+        week: weekKey,
+        foods: buckets[weekKey].food || 0,
+        symptoms: buckets[weekKey].symptom || 0,
+        severity: buckets[weekKey].severity || 0
+      };
+    }).slice(-8);
+  }
+
+  function buildTopLabels(records, valueKey, days, limit) {
+    var startDate = getRelativeDate(days);
+    var scores = {};
+
+    records.forEach(function (record) {
+      if (!record || !record.date || record.date < startDate || !Array.isArray(record[valueKey])) {
+        return;
+      }
+
+      uniqueValues(record[valueKey].map(normalizeLabel).filter(Boolean)).forEach(function (value) {
+        scores[value] = (scores[value] || 0) + 1;
+      });
+    });
+
+    return Object.keys(scores).sort(function (left, right) {
+      if (scores[right] !== scores[left]) {
+        return scores[right] - scores[left];
+      }
+      return left.localeCompare(right, "es");
+    }).slice(0, limit).map(function (value) {
+      return {
+        label: value,
+        count: scores[value]
+      };
+    });
+  }
+
+  function incrementWeeklyBucket(buckets, dateValue, key, amount) {
+    var weekKey = getWeekKey(dateValue);
+
+    if (!weekKey) {
+      return;
+    }
+
+    if (!buckets[weekKey]) {
+      buckets[weekKey] = {
+        food: 0,
+        symptom: 0,
+        severity: 0
+      };
+    }
+
+    buckets[weekKey][key] = (buckets[weekKey][key] || 0) + amount;
+  }
+
+  function getWeekKey(dateValue) {
+    var date = parseDateValue(dateValue);
+    var day;
+
+    if (!date) {
+      return "";
+    }
+
+    day = date.getDay() || 7;
+    date.setDate(date.getDate() + 4 - day);
+
+    return String(date.getFullYear()) + "-W" + String(getWeekNumber(date)).padStart(2, "0");
+  }
+
+  function getWeekNumber(date) {
+    var yearStart = new Date(date.getFullYear(), 0, 1);
+    return Math.ceil((((date - yearStart) / 86400000) + yearStart.getDay() + 1) / 7);
+  }
+
+  function getRelativeDate(days) {
+    var date = new Date();
+
+    date.setDate(date.getDate() - Math.max(0, Number(days || 0) - 1));
+    return formatDate(date);
+  }
+
+  function buildHistoryEntries(options) {
+    var config = options || {};
+    var query = normalizeLabel(config.query || "");
+    var typeFilter = config.type && config.type !== "all" ? config.type : "all";
+    var results = [];
+
+    readArray("food_records").forEach(function (record, index) {
+      var values = Array.isArray(record && record.items) ? record.items : [];
+
+      if (typeFilter !== "all" && typeFilter !== "food") {
+        return;
+      }
+
+      pushHistoryResult(results, {
+        type: "food",
+        date: record && record.date,
+        meal: record && record.meal,
+        values: values,
+        note: "",
+        severity: 0,
+        href: "edit-item.html?index=" + encodeURIComponent(index),
+        query: query
+      });
+    });
+
+    readArray("symptom_records").forEach(function (record, index) {
+      var values = Array.isArray(record && record.symptoms) ? record.symptoms : [];
+
+      if (typeFilter !== "all" && typeFilter !== "symptom") {
+        return;
+      }
+
+      pushHistoryResult(results, {
+        type: "symptom",
+        date: record && record.date,
+        meal: record && record.meal,
+        values: values,
+        note: sanitizeValue(record && record.note),
+        severity: normalizeSeverity(record && record.severity),
+        href: "edit-symptom.html?index=" + encodeURIComponent(index),
+        query: query
+      });
+    });
+
+    return results.sort(function (left, right) {
+      if (left.date !== right.date) {
+        return right.date.localeCompare(left.date);
+      }
+
+      return window.foodTracker.MEAL_ORDER.indexOf(right.meal) - window.foodTracker.MEAL_ORDER.indexOf(left.meal);
+    });
+  }
+
+  function pushHistoryResult(results, config) {
+    var haystack;
+
+    if (!config.date || !config.values.length) {
+      return;
+    }
+
+    haystack = config.values.join(" ") + " " + (config.note || "");
+    if (config.query && normalizeLabel(haystack).indexOf(config.query) === -1) {
+      return;
+    }
+
+    results.push({
+      type: config.type,
+      date: config.date,
+      meal: config.meal,
+      values: config.values.slice(),
+      note: config.note,
+      severity: config.severity,
+      href: config.href
     });
   }
 }());

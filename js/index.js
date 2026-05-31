@@ -72,6 +72,8 @@
           type: "symptom",
           meal: entry.meal,
           values: entry.symptoms,
+          note: app.sanitizeValue(entry.note),
+          severity: app.normalizeSeverity(entry.severity),
           recordIndex: record.index
         };
       });
@@ -189,6 +191,7 @@
       var topLine = document.createElement("div");
       var typeLabel = document.createElement("span");
       var mealLabel = document.createElement("span");
+      var metaLine = document.createElement("div");
       var list = document.createElement("ul");
       var cardLabel = entry.type === "food" ? "Editar comida" : "Editar sintoma";
 
@@ -196,6 +199,7 @@
       card.href = buildEditHref(entry);
       card.setAttribute("aria-label", cardLabel + " de " + (app.MEAL_LABELS[entry.meal] || entry.meal));
       topLine.className = "timeline-topline";
+      metaLine.className = "timeline-meta";
       typeLabel.className = "entry-type";
       mealLabel.className = "entry-meal";
       list.className = "entry-items";
@@ -206,6 +210,22 @@
       topLine.appendChild(typeLabel);
       topLine.appendChild(mealLabel);
 
+      if (entry.type === "symptom") {
+        var severityBadge = document.createElement("span");
+
+        severityBadge.className = "entry-severity";
+        severityBadge.textContent = "Intensidad " + entry.severity + "/5";
+        metaLine.appendChild(severityBadge);
+
+        if (entry.note) {
+          var note = document.createElement("p");
+
+          note.className = "entry-note";
+          note.textContent = entry.note;
+          metaLine.appendChild(note);
+        }
+      }
+
       entry.values.forEach(function (value) {
         var item = document.createElement("li");
         item.textContent = value;
@@ -213,6 +233,9 @@
       });
 
       card.appendChild(topLine);
+      if (metaLine.childNodes.length) {
+        card.appendChild(metaLine);
+      }
       card.appendChild(list);
       timelineList.appendChild(card);
     });

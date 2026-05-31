@@ -12,6 +12,8 @@
   var inputsStack = document.getElementById("inputsStack");
   var dateLabel = document.getElementById("dateLabel");
   var backLink = document.getElementById("backLink");
+  var severityInput = document.getElementById("severityInput");
+  var noteInput = document.getElementById("noteInput");
   var addAnotherBtn = document.getElementById("addAnotherBtn");
   var deleteBtn = document.getElementById("deleteBtn");
   var saveBtn = document.getElementById("saveBtn");
@@ -27,6 +29,12 @@
   backLink.href = buildHomeHref();
   dateLabel.textContent = "Editando sintoma de " + app.prettyDate(record.date);
   app.setSelectedMeal("meal", record.meal);
+  if (severityInput) {
+    severityInput.value = String(app.normalizeSeverity(record.severity));
+  }
+  if (noteInput) {
+    noteInput.value = app.sanitizeValue(record.note);
+  }
   record.symptoms.forEach(function (value) {
     addInputField(value);
   });
@@ -91,6 +99,9 @@
 
   function saveEntries() {
     var values = Array.prototype.slice.call(document.querySelectorAll(".text-input"))
+      .filter(function (input) {
+        return input !== severityInput && input !== noteInput;
+      })
       .map(function (input) {
         return app.sanitizeValue(input.value);
       })
@@ -104,11 +115,15 @@
 
     var meal = app.getSelectedMeal("meal");
     var history = app.readArray(HISTORY_KEY);
+    var severity = app.normalizeSeverity(severityInput ? severityInput.value : 3);
+    var note = app.sanitizeValue(noteInput ? noteInput.value : "");
 
     recordState.records[recordState.index] = {
       date: record.date,
       meal: meal,
-      symptoms: values
+      symptoms: values,
+      severity: severity,
+      note: note
     };
 
     values.forEach(function (value) {

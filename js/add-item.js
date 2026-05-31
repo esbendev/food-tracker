@@ -92,7 +92,7 @@
 
     app.writeArray(RECORD_KEY, records);
     app.writeArray(HISTORY_KEY, history);
-    window.location.href = "index.html";
+    window.location.href = "index.html?viewDate=" + encodeURIComponent(selectedDate);
   }
 
   function addInputField(initialValue) {
