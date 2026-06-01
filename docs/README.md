@@ -1,3 +1,6 @@
+ESTO SE HIZO CON IA
+PROMPT INICIAL QUE USÉ PARA CREAR ESTO [ESTÁ ACÁ](prompt-inicial.md)
+
 # Food Tracker — Developer Documentation
 
 Food Tracker is a client-side-only Progressive Web App (PWA) for logging daily meals and symptoms and discovering correlations between them. There is no backend, no build step, and no framework — everything runs directly in the browser using vanilla ES5 JavaScript and `localStorage` for persistence.
