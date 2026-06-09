@@ -36,7 +36,7 @@
   // Small suppression window to avoid accidental taps on suggestion pills
   // that are rendered for a newly-created input after selecting a suggestion.
   var _suppressSuggestionClicks = false;
-  var SUGGESTION_SUPPRESSION_MS = 350;
+  var SUGGESTION_SUPPRESSION_MS = 1000;
 
   function readArray(key) {
     try {
