@@ -237,7 +237,12 @@
           suggestions.classList.remove("visible");
 
           if (typeof options.onSelect === "function") {
-            options.onSelect(match, input);
+            // Defer calling onSelect so any pointerup/click from the current
+            // interaction doesn't hit suggestion pills rendered for a newly
+            // created input. This avoids accidental double-selection.
+            window.setTimeout(function () {
+              options.onSelect(match, input);
+            }, 0);
             return;
           }
 
