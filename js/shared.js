@@ -221,11 +221,18 @@
         var skipClick = false;
 
         function applySuggestion(event) {
-          if (_suppressSuggestionClicks) {
-            if (event) {
-              event.preventDefault();
-            }
-            return;
+          // Immediately enable suppression to prevent other suggestion
+          // handlers (possibly for newly-rendered inputs) from applying
+          // while we finish processing this selection.
+          if (!_suppressSuggestionClicks) {
+            _suppressSuggestionClicks = true;
+            window.setTimeout(function () {
+              _suppressSuggestionClicks = false;
+            }, SUGGESTION_SUPPRESSION_MS);
+          }
+
+          if (event) {
+            console.debug("applySuggestion event:", event.type, "match:", match && match.length);
           }
 
           if (applied) {
@@ -244,6 +251,8 @@
           }
 
           applied = true;
+          suggestions.style.pointerEvents = "none";
+          console.debug("suggestion applied:", match, "inputs:", document.querySelectorAll('.text-input').length);
           // Temporarily suppress suggestion clicks to avoid the following
           // pointerup/click from selecting pills rendered for a newly
           // created input (addresses mobile touch races with long strings).
