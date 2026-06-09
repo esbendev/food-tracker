@@ -1,4 +1,4 @@
-var CACHE_NAME = "food-tracker-v20260609-1";
+var CACHE_NAME = "food-tracker-v20260609-2";
 var APP_SHELL = [
   "./",
   "./index.html",

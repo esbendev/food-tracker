@@ -33,6 +33,11 @@
     showInfoModal: showInfoModal
   };
 
+  // Small suppression window to avoid accidental taps on suggestion pills
+  // that are rendered for a newly-created input after selecting a suggestion.
+  var _suppressSuggestionClicks = false;
+  var SUGGESTION_SUPPRESSION_MS = 350;
+
   function readArray(key) {
     try {
       var raw = localStorage.getItem(key);
@@ -216,6 +221,13 @@
         var skipClick = false;
 
         function applySuggestion(event) {
+          if (_suppressSuggestionClicks) {
+            if (event) {
+              event.preventDefault();
+            }
+            return;
+          }
+
           if (applied) {
             return;
           }
@@ -232,6 +244,13 @@
           }
 
           applied = true;
+          // Temporarily suppress suggestion clicks to avoid the following
+          // pointerup/click from selecting pills rendered for a newly
+          // created input (addresses mobile touch races with long strings).
+          _suppressSuggestionClicks = true;
+          window.setTimeout(function () {
+            _suppressSuggestionClicks = false;
+          }, SUGGESTION_SUPPRESSION_MS);
           input.value = match;
           suggestions.innerHTML = "";
           suggestions.classList.remove("visible");
