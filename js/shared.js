@@ -191,6 +191,7 @@
     options.container.appendChild(block);
 
     function renderSuggestions() {
+      var applied = false;
       var query = sanitizeValue(input.value).toLowerCase();
       var history = readArray(options.historyKey)
         .filter(function (entry) {
@@ -215,6 +216,10 @@
         var skipClick = false;
 
         function applySuggestion(event) {
+          if (applied) {
+            return;
+          }
+
           if (event) {
             if (event.type === "click" && skipClick) {
               skipClick = false;
@@ -225,6 +230,8 @@
             skipClick = event.type === "pointerdown";
             event.preventDefault();
           }
+
+          applied = true;
           input.value = match;
           suggestions.innerHTML = "";
           suggestions.classList.remove("visible");
